@@ -5,6 +5,7 @@
 #include "ClsMonitor.h"
 #include "EventSink.h"
 #include "ConsoleLogger.h"
+#include "CreateProcessCallbackRegister.h"
 
 #define MAX_LOADSTRING 100
 
@@ -26,36 +27,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // ªì©l¤Æ¥þ°ì¦r¦ê
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 
-	/*
 	// Get Setting
-	HRESULT hres;
 
-	hres = CoInitializeSecurity(
-		NULL,
-		-1,                          // COM negotiates service
-		NULL,                        // Authentication services
-		NULL,                        // Reserved
-		RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-		RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-		NULL,                        // Authentication info
-		EOAC_NONE,                   // Additional capabilities 
-		NULL                         // Reserved
-	);
+	CreateProcessCallbackRegister(new EventSink());
 
-	if (FAILED(hres))
-	{
-		cout << "Failed to initialize security. Error code = 0x"
-			<< hex << hres << endl;
-		CoUninitialize();
-		return 1;                      // Program has failed.
-	}
-	*/
-    
-	while (true)
-	{
-		Sleep(1000);
-		ConsoleLogger::getInstance()->log("Hell O Error");
-	}
-	
+	Sleep(1000000);
+
 	return 0;
 }
