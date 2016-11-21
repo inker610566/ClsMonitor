@@ -148,6 +148,7 @@
     <ClInclude Include="Blacklist.h" />
     <ClInclude Include="ClsMonitor.h" />
     <ClInclude Include="ConsoleLogger.h" />
+    <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EventSink.h" />
     <ClInclude Include="QueueEvent.h" />
     <ClInclude Include="Resource.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Blacklist.cpp" />
     <ClCompile Include="ClsMonitor.cpp" />
     <ClCompile Include="ConsoleLogger.cpp" />
+    <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="EventSink.cpp" />
     <ClCompile Include="QueueEvent.cpp" />
     <ClCompile Include="stdafx.cpp">
