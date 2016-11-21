@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Blacklist.h"
+using namespace std;
 
-Blacklist::Blacklist()
+Blacklist::Blacklist(initializer_list<string> Ilist):blist(Ilist)
 {
 	mutex = CreateMutex(NULL, FALSE, NULL);
 }

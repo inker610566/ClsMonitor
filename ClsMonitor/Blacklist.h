@@ -5,7 +5,7 @@
 class Blacklist
 {
 public:
-	Blacklist();
+	Blacklist(std::initializer_list<std::string> list);
 	// return if not in list
 	bool Add(const std::string Name);
 	// return if in list
