@@ -5,7 +5,7 @@
 #include "ClsMonitor.h"
 #include "EventSink.h"
 #include "ConsoleLogger.h"
-#include "CreateProcessCallbackRegister.h"
+#include "WMIServiceProxy.h"
 
 #define MAX_LOADSTRING 100
 
@@ -29,7 +29,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Get Setting
 
-	CreateProcessCallbackRegister(new EventSink());
+	WMIServiceProxy *proxy = new WMIServiceProxy();
+	EventSink *sink = new EventSink(proxy);
+	proxy->SetCreateProcessCallback(sink);
 
 	Sleep(1000000);
 

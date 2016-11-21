@@ -4,23 +4,24 @@
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
-#include "CallbackRegisterException.h"
+#include "WMIServiceConnectException.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
-class CreateProcessCallbackRegister
+class WMIServiceProxy
 {
 public:
-	CreateProcessCallbackRegister(IWbemObjectSink *sink) throw (CallbackRegisterException);
+	WMIServiceProxy() throw (WMIServiceConnectException);
+	~WMIServiceProxy();
 
-	void Release();
-	~CreateProcessCallbackRegister();
+	HRESULT SetCreateProcessCallback(IWbemObjectSink *sink);
+	HRESULT TerminateProcess();
+
 private:
 	IWbemLocator *pLoc;
-	IWbemServices *pSvc;
 	IUnsecuredApartment *pUnsecApp;
     IUnknown *pStubUnk; 
     IWbemObjectSink *pStubSink;
-	IWbemObjectSink *pSink;
+	IWbemServices *pSvc;
 };
 

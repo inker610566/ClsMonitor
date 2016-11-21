@@ -1,9 +1,14 @@
 // EventSink.cpp
 #include "stdafx.h"
-#include "eventsink.h"
+#include "EventSink.h"
 #include "ConsoleLogger.h"
 #include <sstream>
 using namespace std;
+
+EventSink::EventSink(WMIServiceProxy *proxy) :m_lRef(0)
+{
+	m_proxy = proxy;
+}
 
 ULONG EventSink::AddRef()
 {

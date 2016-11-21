@@ -1,14 +1,12 @@
 #include "stdafx.h"
-#include "CreateProcessCallbackRegister.h"
-#include <sstream>
+#include "WMIServiceProxy.h"
 #include "ConsoleLogger.h"
+#include <sstream>
 using namespace std;
 
-// https://msdn.microsoft.com/en-us/library/aa390425(VS.85).aspx
-CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *sink)
-{
-	pSink = sink;
 
+WMIServiceProxy::WMIServiceProxy() throw(WMIServiceConnectException)
+{
     HRESULT hres;
 
     // Step 1: --------------------------------------------------
@@ -20,7 +18,7 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
 		stringstream ss;
         ss << "Failed to initialize COM library. Error code = 0x"
              << hex << hres << endl;
-		throw CallbackRegisterException(); // Program has failed.
+		throw WMIServiceConnectException(); // Program has failed.
     }
 
     // Step 2: --------------------------------------------------
@@ -46,7 +44,7 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
 			<< hex << hres << endl;
 		ConsoleLogger::getInstance()->log(ss.str());
 		CoUninitialize();
-		throw CallbackRegisterException(); // Program has failed.
+		throw WMIServiceConnectException(); // Program has failed.
     }
 
     // Step 3: ---------------------------------------------------
@@ -66,7 +64,7 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
              << hex << hres << endl;
 		ConsoleLogger::getInstance()->log(ss.str());
         CoUninitialize();
-        throw CallbackRegisterException(); // Program has failed.
+        throw WMIServiceConnectException(); // Program has failed.
     }
 
     // Step 4: ---------------------------------------------------
@@ -93,7 +91,7 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
 		ConsoleLogger::getInstance()->log(ss.str());
         pLoc->Release();
         CoUninitialize();
-        throw CallbackRegisterException(); // Program has failed.
+        throw WMIServiceConnectException(); // Program has failed.
     }
 
     //cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
@@ -122,9 +120,27 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        throw CallbackRegisterException(); // Program has failed.
+        throw WMIServiceConnectException(); // Program has failed.
     }
 
+}
+
+
+WMIServiceProxy::~WMIServiceProxy()
+{
+    HRESULT hres;
+    hres = pSvc->CancelAsyncCall(pStubSink);
+    pSvc->Release();
+    pLoc->Release();
+    pUnsecApp->Release();
+    pStubUnk->Release();
+    pStubSink->Release();
+    CoUninitialize();
+}
+
+HRESULT WMIServiceProxy::SetCreateProcessCallback(IWbemObjectSink * pSink)
+{
+	HRESULT hres;
     // Step 6: -------------------------------------------------
     // Receive event notifications -----------------------------
 
@@ -134,12 +150,12 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
         CLSCTX_LOCAL_SERVER, IID_IUnsecuredApartment,
         (void**)&pUnsecApp);
 
-    pSink->AddRef();
-
     pUnsecApp->CreateObjectStub(pSink, &pStubUnk);
 
     pStubUnk->QueryInterface(IID_IWbemObjectSink,
         (void **) &pStubSink);
+
+    pSink->AddRef();
 
     // The ExecNotificationQueryAsync method will call
     // The EventQuery::Indicate method when an event occurs
@@ -166,24 +182,11 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
         pSink->Release();
         pStubSink->Release();
         CoUninitialize();
-		throw CallbackRegisterException();
     }
+	return hres;
 }
 
-void CreateProcessCallbackRegister::Release()
+HRESULT WMIServiceProxy::TerminateProcess()
 {
-    HRESULT hres;
-    hres = pSvc->CancelAsyncCall(pStubSink);
-    pSvc->Release();
-    pLoc->Release();
-    pUnsecApp->Release();
-    pStubUnk->Release();
-    pSink->Release();
-    pStubSink->Release();
-    CoUninitialize();
-}
-
-
-CreateProcessCallbackRegister::~CreateProcessCallbackRegister()
-{
+	return E_NOTIMPL;
 }
