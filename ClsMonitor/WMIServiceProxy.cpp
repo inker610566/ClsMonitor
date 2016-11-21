@@ -123,6 +123,43 @@ WMIServiceProxy::WMIServiceProxy() throw(WMIServiceConnectException)
         throw WMIServiceConnectException(); // Program has failed.
     }
 
+	// Prepare TerminateProcess
+	BSTR className = SysAllocString(L"Win32_Process");
+	IWbemClassObject *Win32ProcessClass;
+	IWbemClassObject *TerminateMethod, *pInParamsDefination, *pOutMethod;
+    BSTR ReasonString = SysAllocString(L"Reason");
+	hres = pSvc->GetObjectW(className, 0, NULL, &Win32ProcessClass, NULL);
+	if (FAILED(hres))
+	{
+		ConsoleLogger::getInstance()->log("Cannot get Win32_Process Class!!");
+		throw WMIServiceConnectException();
+	}
+
+	hres = Win32ProcessClass->GetMethod(MethodName, 0,
+		&pInParamsDefination, &pOutMethod);
+	if (FAILED(hres))
+	{
+		ConsoleLogger::getInstance()->log("Cannot getMethod Terminate!!");
+		throw WMIServiceConnectException();
+	}
+
+	hres = pInParamsDefination->SpawnInstance(0, &Win32ProcessClassInstance);
+	if (FAILED(hres))
+	{
+		ConsoleLogger::getInstance()->log("Cannot Spawn Win32Process Instance!!");
+		throw WMIServiceConnectException();
+	}
+
+	VARIANT pcVal;
+	VariantInit(&pcVal);
+	V_VT(&pcVal) = VT_I4;
+
+	hres = Win32ProcessClassInstance->Put(L"Reason", 0, &pcVal, 0);
+	if (FAILED(hres))
+	{
+		ConsoleLogger::getInstance()->log("Cannot put reason parameter");
+		throw WMIServiceConnectException();
+	}
 }
 
 
@@ -186,7 +223,10 @@ HRESULT WMIServiceProxy::SetCreateProcessCallback(IWbemObjectSink * pSink)
 	return hres;
 }
 
-HRESULT WMIServiceProxy::TerminateProcess()
+HRESULT WMIServiceProxy::TerminateProcess(const BSTR ClassNameInstance)
 {
-	return E_NOTIMPL;
+	HRESULT hres;
+	hres = pSvc->ExecMethod(ClassNameInstance, MethodName, 0,
+		NULL, Win32ProcessClassInstance, NULL, NULL);
+	return hres;
 }

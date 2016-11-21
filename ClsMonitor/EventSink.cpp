@@ -67,10 +67,6 @@ std::string BstrToStdString(BSTR bstr, int cp = CP_UTF8)
     return str;
 }
 
-void Terminate()
-{
-}
-
 void EnumP(IWbemClassObject *o)
 {
 	HRESULT hr;
@@ -117,8 +113,7 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		IUnknown          *pIUnknown;
 		IWbemClassObject  *pinstPkgStatus = NULL;
 		_variant_t         vName;
-		_variant_t         vExecutablePath;
-		_variant_t         vCommandLine;
+		_variant_t         vRelpath;
 
 		hres = (apObjArray[0])->Get(L"TargetInstance", 0, &vTarget, NULL, NULL);
 		if (FAILED(hres))
@@ -136,22 +131,15 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		}
 		pIUnknown->Release();
 
-		EnumP(pinstPkgStatus);
-		/*
+		//EnumP(pinstPkgStatus);
 		hres = pinstPkgStatus->Get(L"Name", 0, &vName, NULL, NULL);
-		Print(hres, vName, L"Name");
-
-		hres = pinstPkgStatus->Get(L"ExecutablePath", 0, &vExecutablePath, NULL, NULL);
-		Print(hres, vExecutablePath, L"ExecutablePath");
-
-		hres = pinstPkgStatus->Get(L"CommandLine", 0, &vCommandLine, NULL, NULL);
-		Print(hres, vCommandLine, L"CommandLine");
-
+		EnumP(pinstPkgStatus);
+		if (0 == wcscmp(vName.bstrVal, L"chrome.exe"))
+		{
+			hres = pinstPkgStatus->Get(L"__RELPATH", 0, &vRelpath, NULL, NULL);
+			m_proxy->TerminateProcess(vRelpath.bstrVal);
+		}
 		pinstPkgStatus->Release();
-		pinstPkgStatus = NULL;
-
-		cout << endl << endl;
-		*/
 	}
     return WBEM_S_NO_ERROR;
 }

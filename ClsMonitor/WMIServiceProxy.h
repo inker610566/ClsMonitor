@@ -15,7 +15,7 @@ public:
 	~WMIServiceProxy();
 
 	HRESULT SetCreateProcessCallback(IWbemObjectSink *sink);
-	HRESULT TerminateProcess();
+	HRESULT TerminateProcess(const BSTR ClassNameInstance);
 
 private:
 	IWbemLocator *pLoc;
@@ -23,5 +23,9 @@ private:
     IUnknown *pStubUnk; 
     IWbemObjectSink *pStubSink;
 	IWbemServices *pSvc;
+
+	// TerminateProcess
+	IWbemClassObject *Win32ProcessClassInstance;
+	_bstr_t MethodName= (L"Terminate");
 };
 
