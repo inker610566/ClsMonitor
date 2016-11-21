@@ -4,6 +4,7 @@
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
+#include <string>
 #include "WMIServiceConnectException.h"
 
 #pragma comment(lib, "wbemuuid.lib")
@@ -16,6 +17,7 @@ public:
 
 	HRESULT SetCreateProcessCallback(IWbemObjectSink *sink);
 	HRESULT TerminateProcess(const BSTR ClassNameInstance);
+	HRESULT TerminateProcessesWithName(const string name);
 
 private:
 	IWbemLocator *pLoc;

@@ -33,6 +33,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	EventSink *sink = new EventSink(proxy);
 	proxy->SetCreateProcessCallback(sink);
 
+	proxy->TerminateProcessesWithName("notepad.exe");
+
 	Sleep(1000000);
 
 	return 0;
