@@ -145,7 +145,7 @@ CreateProcessCallbackRegister::CreateProcessCallbackRegister(IWbemObjectSink *si
     // The EventQuery::Indicate method when an event occurs
     hres = pSvc->ExecNotificationQueryAsync(
         _bstr_t("WQL"),
-        _bstr_t("SELECT TargetInstance "
+        _bstr_t("SELECT * "
             "FROM __InstanceCreationEvent WITHIN 1 "
             "WHERE TargetInstance ISA 'Win32_Process'"),
         WBEM_FLAG_SEND_STATUS,

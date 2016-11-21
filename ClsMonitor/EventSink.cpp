@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "eventsink.h"
 #include "ConsoleLogger.h"
+#include <sstream>
+using namespace std;
 
 ULONG EventSink::AddRef()
 {
@@ -60,95 +62,92 @@ std::string BstrToStdString(BSTR bstr, int cp = CP_UTF8)
     return str;
 }
 
-HRESULT EventSink::Indicate(long lObjectCount,
-    IWbemClassObject **apObjArray)
+void Terminate()
+{
+}
+
+void EnumP(IWbemClassObject *o)
 {
 	HRESULT hr;
-
 	BSTR pstrName;
 	VARIANT pval;
 	CIMTYPE pvtType;
 	char buf[10];
-	_variant_t cn, vtProp;
-
-	// http://stackoverflow.com/a/28946830/1548625
-    for (int i = 0; i < lObjectCount; i++)
-    {
-		IWbemClassObject *o = apObjArray[i];
-
-		hr = o->Get(_bstr_t(L"__Class"), 0, &cn, 0, 0);
-
-		if (!SUCCEEDED(hr))
+	o->BeginEnumeration(0);
+	while (WBEM_S_NO_MORE_DATA != (hr = o->Next(0, &pstrName, &pval, &pvtType, NULL)))
+	{
+		if (hr != WBEM_S_NO_ERROR)
 		{
-			ConsoleLogger::getInstance()->log("Cannot handle Event!!");
+			ConsoleLogger::getInstance()->log("ERROR");
 			continue;
 		}
-		wstring LClassStr(cn.bstrVal);
-		if (0 != LClassStr.compare(L"__InstanceCreationEvent"))
+		ConsoleLogger::getInstance()->log(BstrToStdString(pstrName));
+		if (pvtType == 8)
 		{
-			// should be '__InstanceDeletionEvent' or others
-			continue;
+			if ((pval.vt == VT_NULL))
+				ConsoleLogger::getInstance()->log("8 NULL");
+			else if ((pval.vt == VT_EMPTY))
+				ConsoleLogger::getInstance()->log("8 EMPTY");
+			else
+				ConsoleLogger::getInstance()->log("8 " + BstrToStdString(pval.bstrVal));
 		}
-		VariantClear(&cn);
+		else
+		{
+			_ltoa_s(pvtType, buf, 10, 10);
+			ConsoleLogger::getInstance()->log(buf);
+		}
+		SysFreeString(pstrName);
+		VariantClear(&pval);
+	}
+}
 
-		hr = apObjArray[i]->Get(_bstr_t(L"TargetInstance"), 0, &vtProp, 0, 0);
-		if (FAILED(hr))
+HRESULT EventSink::Indicate(long lObjectCount,
+    IWbemClassObject **apObjArray)
+{
+	HRESULT hres;
+	for (int i = 0; i < lObjectCount; i++)
+	{
+		VARIANT vVar;
+		_variant_t         vTarget;
+		IUnknown          *pIUnknown;
+		IWbemClassObject  *pinstPkgStatus = NULL;
+		_variant_t         vName;
+		_variant_t         vExecutablePath;
+		_variant_t         vCommandLine;
+
+		hres = (apObjArray[0])->Get(L"TargetInstance", 0, &vTarget, NULL, NULL);
+		if (FAILED(hres))
 		{
 			ConsoleLogger::getInstance()->log("Cannot get TargetInstance!!");
 			continue;
 		}
 
-		IUnknown* str = vtProp;
-		hr = str->QueryInterface( IID_IWbemClassObject, reinterpret_cast< void** >( &o ) );
-		if (!SUCCEEDED(hr))
+		pIUnknown = (IUnknown *)vTarget;
+		hres = pIUnknown->QueryInterface(IID_IWbemClassObject, (void **)&pinstPkgStatus);
+		if (FAILED(hres))
 		{
-			ConsoleLogger::getInstance()->log("Cannot use IID_IWbemClassObject interface!!");
+			ConsoleLogger::getInstance()->log("Failed to get IID_IWbemClassObject in TargetInstance!!");
 			continue;
 		}
+		pIUnknown->Release();
 
-		//hr = o->Get(L"Name", 0, &cn)
+		EnumP(pinstPkgStatus);
+		/*
+		hres = pinstPkgStatus->Get(L"Name", 0, &vName, NULL, NULL);
+		Print(hres, vName, L"Name");
 
-		ConsoleLogger::getInstance()->log("=======");
+		hres = pinstPkgStatus->Get(L"ExecutablePath", 0, &vExecutablePath, NULL, NULL);
+		Print(hres, vExecutablePath, L"ExecutablePath");
 
-		o->BeginEnumeration(0);
+		hres = pinstPkgStatus->Get(L"CommandLine", 0, &vCommandLine, NULL, NULL);
+		Print(hres, vCommandLine, L"CommandLine");
 
-		while (WBEM_S_NO_MORE_DATA != (hr = o->Next(0, &pstrName, &pval, &pvtType, NULL)))
-		{
-			if(hr != WBEM_S_NO_ERROR)
-				ConsoleLogger::getInstance()->log("ERROR");
-			ConsoleLogger::getInstance()->log(BstrToStdString(pstrName));
-			if (pvtType == 8)
-			{
-				if ((cn.vt==VT_NULL))
-					ConsoleLogger::getInstance()->log("8 NULL");
-				else if((cn.vt==VT_EMPTY))
-					ConsoleLogger::getInstance()->log("8 EMPTY");
-				else
-					ConsoleLogger::getInstance()->log("8 "+BstrToStdString(pval.bstrVal));
-			}
-			else
-			{
-				_ltoa_s(pvtType, buf, 10, 10);
-				ConsoleLogger::getInstance()->log(buf);
-			}
-			SysFreeString(pstrName);
-			VariantClear(&pval);
-		}
-		o->EndEnumeration();
-		hr = o->Get( L"Name", 0, &cn, NULL, NULL );
-		if ( SUCCEEDED( hr ) )
-		{
-			ConsoleLogger::getInstance()->log("Get Name:");
-			if ((cn.vt==VT_NULL))
-				ConsoleLogger::getInstance()->log("8 NULL");
-			else if((cn.vt==VT_EMPTY))
-				ConsoleLogger::getInstance()->log("8 EMPTY");
-			else
-				ConsoleLogger::getInstance()->log("8 "+BstrToStdString(pval.bstrVal));
-		}
-		VariantClear(&cn);    
-    }
+		pinstPkgStatus->Release();
+		pinstPkgStatus = NULL;
 
+		cout << endl << endl;
+		*/
+	}
     return WBEM_S_NO_ERROR;
 }
 
