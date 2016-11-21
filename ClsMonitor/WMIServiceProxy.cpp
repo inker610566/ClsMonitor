@@ -230,3 +230,36 @@ HRESULT WMIServiceProxy::TerminateProcess(const BSTR ClassNameInstance)
 		NULL, Win32ProcessClassInstance, NULL, NULL);
 	return hres;
 }
+
+HRESULT WMIServiceProxy::TerminateProcessesWithName(const string name)
+{
+	HRESULT hr;
+	IEnumWbemClassObject *pEnum;
+	hr = pSvc->ExecQuery(
+		_bstr_t("WQL"),
+		_bstr_t(("SELECT * FROM Win32_Process WHERE Name='"+name+"'").c_str()),
+		WBEM_FLAG_FORWARD_ONLY, NULL, &pEnum);
+
+	IWbemClassObject *pclsObj = NULL;
+	ULONG uReturn = 0;
+	VARIANT vtProp;
+
+	if (!FAILED(hr))
+	{
+		while (pEnum)
+		{
+			hr = pEnum->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+			if (0 == uReturn) break;
+			hr = pclsObj->Get(L"__RelPath", 0, &vtProp, 0, 0);
+			if (FAILED(hr))
+			{
+				ConsoleLogger::getInstance()->log("Cannot get __RelPath in TerminateProcessList");
+				continue;
+			}
+			TerminateProcess(vtProp.bstrVal);
+			VariantClear(&vtProp);
+			pclsObj->Release();
+		}
+	}
+	return hr;
+}
