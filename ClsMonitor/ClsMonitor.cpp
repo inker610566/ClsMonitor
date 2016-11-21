@@ -6,6 +6,8 @@
 #include "EventSink.h"
 #include "ConsoleLogger.h"
 #include "WMIServiceProxy.h"
+#include "EventQueue.h"
+#include "Blacklist.h"
 
 #define MAX_LOADSTRING 100
 
@@ -29,13 +31,31 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Get Setting
 
-	WMIServiceProxy *proxy = new WMIServiceProxy();
-	EventSink *sink = new EventSink(proxy);
-	proxy->SetCreateProcessCallback(sink);
+	WMIServiceProxy proxy;
+	EventSink sink(&proxy);
+	EventQueue queue;
+	Blacklist list({}); // put default list here
+	proxy.SetCreateProcessCallback(&sink);
+	//proxy.TerminateProcessesWithName("notepad.exe");
 
-	proxy->TerminateProcessesWithName("notepad.exe");
-
-	Sleep(1000000);
+	while (true)
+	{
+		QueueEvent* evt = queue.Pop();
+		switch (evt->type)
+		{
+		case Kill:
+			proxy.TerminateProcess(evt->RelPath.bstrVal);
+			break;
+		case Add:
+			list.Add(evt->Name);
+			proxy.TerminateProcessesWithName(evt->Name);
+			break;
+		case Del:
+			list.Del(evt->Name);
+			break;
+		}
+		delete evt;
+	}
 
 	return 0;
 }
