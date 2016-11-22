@@ -11,7 +11,7 @@ namespace ClsMServer
     public class AsyncClient
     {
         private TcpClient client;
-        private Queue<string> q = new Queue<string>();
+        private Queue<Byte[]> q = new Queue<Byte[]>();
         private ManualResetEvent pending_pop = new ManualResetEvent(true);
         private Thread thread;
         public bool isClosed { get; private set; } = false;
@@ -27,7 +27,7 @@ namespace ClsMServer
                     while (true)
                     {
                         // Dequeue
-                        string msg = null;
+                        Byte[] msg = null;
                         lock (q)
                         {
                             if (q.Count != 0)
@@ -40,8 +40,7 @@ namespace ClsMServer
                             pending_pop.WaitOne();
                             continue;
                         }
-                        Byte[] bytes = Encoding.Unicode.GetBytes(msg);
-                        client.GetStream().Write(bytes, 0, bytes.Length);
+                        client.GetStream().Write(msg, 0, msg.Length);
                     }
                 }
                 catch(Exception)
@@ -53,7 +52,7 @@ namespace ClsMServer
             this.thread.Start();
         }
 
-        public void SendAsync(string msg)
+        public void SendAsync(Byte[] msg)
         {
             lock (q)
             {

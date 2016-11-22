@@ -53,6 +53,7 @@
       <DependentUpon>AddForm.cs</DependentUpon>
     </Compile>
     <Compile Include="AsyncClient.cs" />
+    <Compile Include="BlackList.cs" />
     <Compile Include="CmdServer.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

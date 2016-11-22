@@ -40,6 +40,7 @@
             this.Message.ReadOnly = true;
             this.Message.Size = new System.Drawing.Size(284, 261);
             this.Message.TabIndex = 0;
+            this.Message.TextChanged += new System.EventHandler(this.Message_TextChanged);
             // 
             // InitForm
             // 
@@ -49,6 +50,7 @@
             this.Controls.Add(this.Message);
             this.Name = "InitForm";
             this.Text = "InitForm";
+            this.Load += new System.EventHandler(this.InitForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

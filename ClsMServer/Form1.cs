@@ -13,9 +13,15 @@ namespace ClsMServer
     public partial class Form1 : Form
     {
         private AddForm addForm;
-        public Form1()
+        private CmdServer cmdServer;
+        private InitForm msgForm;
+        private BlackList blacklist;
+        public Form1(CmdServer server, InitForm msgForm)
         {
+            this.cmdServer = server;
+            this.msgForm = msgForm;
             InitializeComponent();
+            this.blacklist = new BlackList(listView1);
             addForm = new AddForm();
 
             listView1.ContextMenuStrip = ClsMServer.MenuFactory.Produce(
@@ -24,15 +30,35 @@ namespace ClsMServer
                     DialogResult r = addForm.ShowDialog();
                     if(r == DialogResult.OK)
                     {
-                        listView1.Items.Add(addForm.AddString);
+                        blacklist.Add(addForm.AddString);
                     }
                 },
                 ()=>
                 {
-                    //NewProcessTextBox.Text = listView1.SelectedItems[0].Text;
+                    // Enable
+                    if (listView1.SelectedItems.Count == 0)
+                        return;
+                    Byte[][] bs = new Byte[listView1.SelectedItems.Count][];
+                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
+                    {
+                        bs[i] = BlackList.CmdToByteArray(true, listView1.SelectedItems[i].Text);
+                    }
+                    cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
+                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
+                        listView1.SelectedItems[i].BackColor = Color.AliceBlue;
                 },
                 ()=>
                 {
+                    if (listView1.SelectedItems.Count == 0)
+                        return;
+                    Byte[][] bs = new Byte[listView1.SelectedItems.Count][];
+                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
+                    {
+                        bs[i] = BlackList.CmdToByteArray(true, listView1.SelectedItems[i].Text);
+                    }
+                    cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
+                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
+                        listView1.SelectedItems[i].BackColor = Color.Empty;
                 });
         }
     }

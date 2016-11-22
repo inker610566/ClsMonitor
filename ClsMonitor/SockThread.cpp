@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "SockThread.h"
 #include <windows.h>
 #include <winsock2.h>
+#pragma comment(lib,"WS2_32")
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,6 +13,8 @@
 using namespace std;
 
 char RecvBuf[256];
+
+int RecvUtil(SOCKET s, char *buf, int len);
 
 DWORD WINAPI PSockThread(
 	_In_ LPVOID lpParameter

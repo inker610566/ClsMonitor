@@ -19,7 +19,7 @@ QueueEvent * EventQueue::Pop()
 	EnterCriticalSection(&sec);
 	if (!q.empty())
 	{
-		evt = q.back();
+		evt = q.front();
 		q.pop();
 	}
 	else

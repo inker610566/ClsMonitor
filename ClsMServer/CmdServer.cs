@@ -13,7 +13,7 @@ namespace ClsMServer
     {
         private TcpListener server;
 
-        private LinkedList<AsyncClient> clients;
+        private LinkedList<AsyncClient> clients = new LinkedList<AsyncClient>();
         private bool exit = false;
 
         public CmdServer(string IP, Int32 port)
@@ -34,7 +34,7 @@ namespace ClsMServer
         }
 
         // Async
-        public void Broadcast(string msg, Action OnBroadcaseFinish = null)
+        public void Broadcast(Byte[] msg, Action OnBroadcaseFinish = null)
         {
             new Thread(() =>
             {
