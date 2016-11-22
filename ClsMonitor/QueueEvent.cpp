@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "QueueEvent.h"
 
-QueueEvent::QueueEvent(bool AddOrDel, std::string Name):Name(Name)
+QueueEvent::QueueEvent(bool AddOrDel, std::wstring Name):Name(Name)
 {
 	type = AddOrDel ? Add : Del;
 }

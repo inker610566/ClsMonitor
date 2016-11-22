@@ -6,6 +6,8 @@
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
+#include "Blacklist.h"
+#include "EventQueue.h"
 #include "WMIServiceProxy.h"
 
 #pragma comment(lib, "wbemuuid.lib")
@@ -15,9 +17,11 @@ class EventSink : public IWbemObjectSink
 	LONG m_lRef;
 	bool bDone;
 	WMIServiceProxy *m_proxy;
+	EventQueue *q;
+	Blacklist *list;
 
 public:
-	EventSink(WMIServiceProxy* proxy);
+	EventSink(WMIServiceProxy* proxy, EventQueue *q, Blacklist *list);
 	~EventSink() { bDone = true; }
 
 	virtual ULONG STDMETHODCALLTYPE AddRef();

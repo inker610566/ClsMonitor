@@ -2,12 +2,12 @@
 #include "Blacklist.h"
 using namespace std;
 
-Blacklist::Blacklist(initializer_list<string> Ilist):blist(Ilist)
+Blacklist::Blacklist(initializer_list<wstring> Ilist):blist(Ilist)
 {
 	mutex = CreateMutex(NULL, FALSE, NULL);
 }
 
-bool Blacklist::Add(const std::string Name)
+bool Blacklist::Add(const std::wstring Name)
 {
 	WaitForSingleObject(mutex, INFINITE);
 	bool r = blist.insert(Name).second;
@@ -15,7 +15,7 @@ bool Blacklist::Add(const std::string Name)
 	return r;
 }
 
-bool Blacklist::Del(const std::string Name)
+bool Blacklist::Del(const std::wstring Name)
 {
 	WaitForSingleObject(mutex, INFINITE);
 	bool r = blist.erase(Name);
@@ -23,12 +23,12 @@ bool Blacklist::Del(const std::string Name)
 	return r;
 }
 
-bool Blacklist::Query(const std::string Name) const
+bool Blacklist::Query(const std::wstring Name) const
 {
 	WaitForSingleObject(mutex, INFINITE);
 	bool r = blist.find(Name) != blist.end();
 	ReleaseMutex(mutex);
-	return false;
+	return r;
 }
 
 

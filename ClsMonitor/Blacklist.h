@@ -5,15 +5,15 @@
 class Blacklist
 {
 public:
-	Blacklist(std::initializer_list<std::string> list);
+	Blacklist(std::initializer_list<std::wstring> list);
 	// return if not in list
-	bool Add(const std::string Name);
+	bool Add(const std::wstring Name);
 	// return if in list
-	bool Del(const std::string Name);
-	bool Query(const std::string Name) const;
+	bool Del(const std::wstring Name);
+	bool Query(const std::wstring Name) const;
 	~Blacklist();
 private:
 	HANDLE mutex;
-	std::unordered_set<std::string> blist;
+	std::unordered_set<std::wstring> blist;
 };
 

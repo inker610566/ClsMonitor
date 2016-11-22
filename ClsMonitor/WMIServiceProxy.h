@@ -17,7 +17,7 @@ public:
 
 	HRESULT SetCreateProcessCallback(IWbemObjectSink *sink);
 	HRESULT TerminateProcess(const BSTR ClassNameInstance);
-	HRESULT TerminateProcessesWithName(const string name);
+	HRESULT TerminateProcessesWithName(const wstring name);
 
 private:
 	IWbemLocator *pLoc;

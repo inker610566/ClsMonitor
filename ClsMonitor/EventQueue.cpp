@@ -23,8 +23,11 @@ QueueEvent * EventQueue::Pop()
 		q.pop();
 	}
 	LeaveCriticalSection(&sec);
-	if(evt == nullptr)
+	if (evt == nullptr)
+	{
 		WaitForSingleObject(pending_pop, INFINITE);
+		return Pop();
+	}
 	return evt;
 }
 

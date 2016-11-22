@@ -3,11 +3,13 @@
 #include "EventSink.h"
 #include "ConsoleLogger.h"
 #include <sstream>
+#include "BSTRUtils.h"
 using namespace std;
+using namespace BSTRUtils;
 
-EventSink::EventSink(WMIServiceProxy *proxy) :m_lRef(0)
+EventSink::EventSink(WMIServiceProxy *proxy, EventQueue *q, Blacklist *list)
+	:m_lRef(0), m_proxy(proxy), q(q), list(list)
 {
-	m_proxy = proxy;
 }
 
 ULONG EventSink::AddRef()
@@ -131,14 +133,13 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		}
 		pIUnknown->Release();
 
-		//EnumP(pinstPkgStatus);
 		hres = pinstPkgStatus->Get(L"Name", 0, &vName, NULL, NULL);
-		EnumP(pinstPkgStatus);
-		if (0 == wcscmp(vName.bstrVal, L"chrome.exe"))
+		if (list->Query(BSTRToWString(vName.bstrVal)))
 		{
 			hres = pinstPkgStatus->Get(L"__RELPATH", 0, &vRelpath, NULL, NULL);
-			m_proxy->TerminateProcess(vRelpath.bstrVal);
+			q->Push(new QueueEvent(vRelpath));
 		}
+		VariantClear(&vName);
 		pinstPkgStatus->Release();
 	}
     return WBEM_S_NO_ERROR;

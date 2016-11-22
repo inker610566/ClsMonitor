@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blacklist.h" />
+    <ClInclude Include="BSTRUtils.h" />
     <ClInclude Include="ClsMonitor.h" />
     <ClInclude Include="ConsoleLogger.h" />
     <ClInclude Include="EventQueue.h" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Blacklist.cpp" />
+    <ClCompile Include="BSTRUtils.cpp" />
     <ClCompile Include="ClsMonitor.cpp" />
     <ClCompile Include="ConsoleLogger.cpp" />
     <ClCompile Include="EventQueue.cpp" />

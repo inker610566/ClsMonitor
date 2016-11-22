@@ -231,13 +231,13 @@ HRESULT WMIServiceProxy::TerminateProcess(const BSTR ClassNameInstance)
 	return hres;
 }
 
-HRESULT WMIServiceProxy::TerminateProcessesWithName(const string name)
+HRESULT WMIServiceProxy::TerminateProcessesWithName(const wstring name)
 {
 	HRESULT hr;
 	IEnumWbemClassObject *pEnum;
 	hr = pSvc->ExecQuery(
-		_bstr_t("WQL"),
-		_bstr_t(("SELECT * FROM Win32_Process WHERE Name='"+name+"'").c_str()),
+		_bstr_t(L"WQL"),
+		_bstr_t((L"SELECT * FROM Win32_Process WHERE Name='"+name+L"'").c_str()),
 		WBEM_FLAG_FORWARD_ONLY, NULL, &pEnum);
 
 	IWbemClassObject *pclsObj = NULL;

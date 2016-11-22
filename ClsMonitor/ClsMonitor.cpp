@@ -32,11 +32,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Get Setting
 
 	WMIServiceProxy proxy;
-	EventSink sink(&proxy);
 	EventQueue queue;
-	Blacklist list({}); // put default list here
+	Blacklist list({L"notepad.exe"}); // put default list here
+	EventSink sink(&proxy, &queue, &list);
 	proxy.SetCreateProcessCallback(&sink);
-	//proxy.TerminateProcessesWithName("notepad.exe");
+	//proxy.TerminateProcessesWithName(L"notepad.exe");
 
 	while (true)
 	{
