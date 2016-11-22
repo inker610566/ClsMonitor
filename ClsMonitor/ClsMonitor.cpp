@@ -8,6 +8,7 @@
 #include "WMIServiceProxy.h"
 #include "EventQueue.h"
 #include "Blacklist.h"
+#include "SockThread.h"
 
 #define MAX_LOADSTRING 100
 
@@ -36,6 +37,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	Blacklist list({L"notepad.exe"}); // put default list here
 	EventSink sink(&proxy, &queue, &list);
 	proxy.SetCreateProcessCallback(&sink);
+	SockThread st("127.0.0.1", 5566, &queue);
+
 	//proxy.TerminateProcessesWithName(L"notepad.exe");
 
 	while (true)
