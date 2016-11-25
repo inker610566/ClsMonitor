@@ -12,11 +12,13 @@ namespace ClsMServer
     public class CmdServer
     {
         private TcpListener server;
-
         private LinkedList<AsyncClient> clients = new LinkedList<AsyncClient>();
         private bool exit = false;
 
-        public CmdServer(string IP, Int32 port)
+        public delegate void ClientEvent(TcpClient client);
+        //private ClientEvent onConnect;
+
+        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null)
         {
             server = new TcpListener(IPAddress.Parse(IP), port);
             server.Start();
@@ -29,12 +31,14 @@ namespace ClsMServer
                     {
                         clients.AddLast(new AsyncClient(c));
                     }
+                    if(onConnect != null)
+                        onConnect(c);
                 }
             }).Start();
         }
 
         // Async
-        public void Broadcast(Byte[] msg, Action OnBroadcaseFinish = null)
+        public void Broadcast(Byte[] msg, Action OnBroadcastFinish = null)
         {
             new Thread(() =>
             {
@@ -49,7 +53,7 @@ namespace ClsMServer
                         node = nextNode;
                     }
                 }
-                if(OnBroadcaseFinish != null) OnBroadcaseFinish();
+                if(OnBroadcastFinish != null) OnBroadcastFinish();
             }).Start();
         }
 

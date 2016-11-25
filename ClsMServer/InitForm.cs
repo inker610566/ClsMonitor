@@ -22,8 +22,10 @@ namespace ClsMServer
 
         private void InitForm_Load(object sender, EventArgs e)
         {
-            server = new CmdServer("192.168.1.239", 5566);
-            this.Message.Text = "Bind CmdServer Success";
+            server = new CmdServer("192.168.1.239", 5566, (c) => { Message.BeginInvoke(new Action(() => {
+                Message.Text += String.Format("Client {0} connect\n", new object[] {c.Client.RemoteEndPoint.ToString()});
+            }));});
+            this.Message.Text = "Bind CmdServer Success\r\n";
             form1 = new Form1(server, this);
             form1.Show();
         }

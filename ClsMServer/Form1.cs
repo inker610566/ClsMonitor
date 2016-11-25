@@ -54,7 +54,7 @@ namespace ClsMServer
                     Byte[][] bs = new Byte[listView1.SelectedItems.Count][];
                     for(int i = 0; i < listView1.SelectedItems.Count; i ++)
                     {
-                        bs[i] = BlackList.CmdToByteArray(true, listView1.SelectedItems[i].Text);
+                        bs[i] = BlackList.CmdToByteArray(false, listView1.SelectedItems[i].Text);
                     }
                     cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
                     for(int i = 0; i < listView1.SelectedItems.Count; i ++)
