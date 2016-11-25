@@ -15,24 +15,28 @@ namespace ClsMServer
         private LinkedList<AsyncClient> clients = new LinkedList<AsyncClient>();
         private bool exit = false;
 
-        public delegate void ClientEvent(TcpClient client);
+        public delegate void ClientEvent(string client);
         //private ClientEvent onConnect;
+        private ClientEvent onDisconnect;
 
-        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null)
+        // NOTE: onDisconnect probably will not be triggered right after client disconnect
+        //       (usaually triggered after few rounds of broadcast)
+        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null, ClientEvent onDisconnect = null)
         {
+            this.onDisconnect = onDisconnect;
             server = new TcpListener(IPAddress.Parse(IP), port);
             server.Start();
             new Thread(() =>
             {
                 while (!exit)
                 {
-                    TcpClient c = server.AcceptTcpClient();
+                    AsyncClient c = new AsyncClient(server.AcceptTcpClient());
                     lock (clients)
                     {
-                        clients.AddLast(new AsyncClient(c));
+                        clients.AddLast(c);
                     }
                     if(onConnect != null)
-                        onConnect(c);
+                        onConnect(c.ClientInfo);
                 }
             }).Start();
         }
@@ -47,7 +51,11 @@ namespace ClsMServer
                     for(var node = clients.First; node != null; ) {
                         var nextNode = node.Next;
                         if (node.Value.isClosed)
+                        {
                             clients.Remove(node);
+                            if (onDisconnect != null)
+                                onDisconnect(node.Value.ClientInfo);
+                        }
                         else
                             node.Value.SendAsync(msg);
                         node = nextNode;

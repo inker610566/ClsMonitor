@@ -20,11 +20,23 @@ namespace ClsMServer
             InitializeComponent();
         }
 
+        public void Log(string s)
+        {
+            if (Message.InvokeRequired)
+            {
+                Message.BeginInvoke(new Action(() => { Log(s); }));
+                return;
+            }
+            Message.Text += s + "\r\n";
+        }
+
         private void InitForm_Load(object sender, EventArgs e)
         {
-            server = new CmdServer("192.168.1.239", 5566, (c) => { Message.BeginInvoke(new Action(() => {
-                Message.Text += String.Format("Client {0} connect\n", new object[] {c.Client.RemoteEndPoint.ToString()});
-            }));});
+            server = new CmdServer("192.168.1.239", 5566, (c) => {
+                Log(String.Format("Client {0} connect\n", new object[] { c }));
+            }, (c) => {
+                Log(String.Format("Client {0} disconnect\n", new object[] { c }));
+            });
             this.Message.Text = "Bind CmdServer Success\r\n";
             form1 = new Form1(server, this);
             form1.Show();

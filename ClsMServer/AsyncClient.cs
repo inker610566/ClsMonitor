@@ -14,11 +14,13 @@ namespace ClsMServer
         private Queue<Byte[]> q = new Queue<Byte[]>();
         private ManualResetEvent pending_pop = new ManualResetEvent(true);
         private Thread thread;
+        public string ClientInfo { get; private set; }
         public bool isClosed { get; private set; } = false;
         
         public AsyncClient(TcpClient client)
         {
             this.client = client;
+            ClientInfo = client.Client.RemoteEndPoint.ToString();
             this.thread = new Thread(() =>
             {
                 // consumer
