@@ -14,10 +14,7 @@ public:
 	QueueEvent(bool AddOrDel, std::wstring Name);
 	QueueEvent(VARIANT RelPath);
 	~QueueEvent();
-	union {
-		VARIANT RelPath;
-		std::wstring Name;
-	};
+	std::wstring Name;
 	EventType type;
 };
 

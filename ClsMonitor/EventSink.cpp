@@ -115,7 +115,6 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		IUnknown          *pIUnknown;
 		IWbemClassObject  *pinstPkgStatus = NULL;
 		_variant_t         vName;
-		_variant_t         vRelpath;
 
 		hres = (apObjArray[0])->Get(L"TargetInstance", 0, &vTarget, NULL, NULL);
 		if (FAILED(hres))
@@ -136,8 +135,7 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		hres = pinstPkgStatus->Get(L"Name", 0, &vName, NULL, NULL);
 		if (list->Query(BSTRToWString(vName.bstrVal)))
 		{
-			hres = pinstPkgStatus->Get(L"__RELPATH", 0, &vRelpath, NULL, NULL);
-			q->Push(new QueueEvent(vRelpath));
+			q->Push(new QueueEvent(vName));
 		}
 		VariantClear(&vName);
 		pinstPkgStatus->Release();

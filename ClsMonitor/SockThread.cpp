@@ -61,7 +61,7 @@ DWORD WINAPI PSockThread(
 			// AddOrDel
 			int result = RecvUtil(sock, RecvBuf, 1);
 			if (result == 0 || result == SOCKET_ERROR) break;
-			bool AddOrDel = RecvBuf[0] == '1';
+			int EventType = RecvBuf[0];
 			// size
 			result = RecvUtil(sock, RecvBuf, 1);
 			if (result == 0 || result == SOCKET_ERROR) break;
@@ -70,9 +70,16 @@ DWORD WINAPI PSockThread(
 			result = RecvUtil(sock, RecvBuf, size);
 			if (result == 0 || result == SOCKET_ERROR) break;
 
-			st->q->Push(new QueueEvent(AddOrDel, wstring((const wchar_t*)RecvBuf, size/2))); // if size/2???
+			switch (EventType)
+			{
+				case 0:
+				case 1:
+					st->q->Push(new QueueEvent(EventType, wstring((const wchar_t*)RecvBuf, size/2))); // if size/2???
+					break;
+			}
 		}
 	} while (true);
+	return 0;
 }
 
 int RecvUtil(SOCKET s, char *buf, int len)

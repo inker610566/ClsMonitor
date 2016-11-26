@@ -6,13 +6,11 @@ QueueEvent::QueueEvent(bool AddOrDel, std::wstring Name):Name(Name)
 	type = AddOrDel ? Add : Del;
 }
 
-QueueEvent::QueueEvent(VARIANT RelPath):RelPath(RelPath)
+QueueEvent::QueueEvent(VARIANT Name):Name(Name.bstrVal, SysStringLen(Name.bstrVal))
 {
 	type = Kill;
 }
 
 QueueEvent::~QueueEvent()
 {
-	if (type == Kill)
-		VariantClear(&RelPath);
 }
