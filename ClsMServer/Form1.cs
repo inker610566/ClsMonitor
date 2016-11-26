@@ -44,8 +44,9 @@ namespace ClsMServer
                         bs[i] = BlackList.CmdToByteArray(true, listView1.SelectedItems[i].Text);
                     }
                     cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
-                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
-                        listView1.SelectedItems[i].BackColor = Color.AliceBlue;
+
+                    foreach(System.Windows.Forms.ListViewItem i in listView1.SelectedItems)
+                        i.ForeColor = Color.FromKnownColor(KnownColor.Maroon);
                 },
                 ()=>
                 {
@@ -57,8 +58,8 @@ namespace ClsMServer
                         bs[i] = BlackList.CmdToByteArray(false, listView1.SelectedItems[i].Text);
                     }
                     cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
-                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
-                        listView1.SelectedItems[i].BackColor = Color.Empty;
+                    foreach(System.Windows.Forms.ListViewItem i in listView1.SelectedItems)
+                        i.ForeColor = Color.FromKnownColor(KnownColor.Black);
                 });
         }
     }
