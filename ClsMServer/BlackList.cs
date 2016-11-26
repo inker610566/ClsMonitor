@@ -10,26 +10,95 @@ namespace ClsMServer
 {
     public class BlackList
     {
-        private HashSet<string> list = new HashSet<string>();
+        private HashSet<string> candidatelist = new HashSet<string>(),
+                                defaultlist = new HashSet<string>(),
+                                minus_set= new HashSet<string>(),
+                                add_set = new HashSet<string>();
         private ListView listview;
-        public BlackList(ListView listview)
+        public BlackList(ListView listview, string filepath = null)
         {
             this.listview = listview;
+            if(filepath != null && System.IO.File.Exists(filepath))
+            {
+                foreach (var s in System.IO.File.ReadAllLines(filepath))
+                {
+                    defaultlist.Add(s);
+                    candidatelist.Add(s);
+                    ListViewItem i = new ListViewItem(s);
+                    i.ForeColor = System.Drawing.Color.Maroon;
+                    listview.Items.Add(i);
+                }
+            }
         }
 
+        // Add to candidate list
         public bool Add(string s)
         {
-            if (list.Contains(s))
+            if (candidatelist.Contains(s))
                 return false;
-            list.Add(s);
+            candidatelist.Add(s);
             listview.Items.Add(s);
             return true;
         }
 
-        // Presume to be add
+        // Update list from Selected Items
+        // return message need to be broadcast
+        // return null if no item selected
+        public Byte[] Enable()
+        {
+            if (listview.SelectedItems.Count == 0)
+                return null;
+            lock(add_set)
+            {
+                Byte[][] bs = new Byte[listview.SelectedItems.Count][];
+                for(int i = 0; i < listview.SelectedItems.Count; i ++)
+                {
+                    ListViewItem item = listview.SelectedItems[i];
+                    item.ForeColor = System.Drawing.Color.Maroon;
+                    string s = item.Text;
+                    bs[i] = BlackList.CmdToByteArray(true, s);
+                    if (defaultlist.Contains(s))
+                        minus_set.Remove(s);
+                    else
+                        add_set.Add(s);
+                }
+                return BlackList.ConcateByteArray(bs);
+            }
+        }
+
+        // See comment for 'Enable'
+        public Byte[] Disable()
+        {
+            if (listview.SelectedItems.Count == 0)
+                return null;
+            lock(add_set)
+            {
+                Byte[][] bs = new Byte[listview.SelectedItems.Count][];
+                for(int i = 0; i < listview.SelectedItems.Count; i ++)
+                {
+                    ListViewItem item = listview.SelectedItems[i];
+                    item.ForeColor = System.Drawing.Color.Black;
+                    string s = item.Text;
+                    bs[i] = BlackList.CmdToByteArray(false, s);
+                    if (defaultlist.Contains(s))
+                        minus_set.Add(s);
+                    else
+                        add_set.Remove(s);
+                }
+                return BlackList.ConcateByteArray(bs);
+            }
+        }
+
+        // Diff with default blacklist
         public Byte[] ToByteArray()
         {
-            return ConcateByteArray((list.Select((s) => CmdToByteArray(true, s)).ToArray()));
+            lock (add_set)
+            {
+                return ConcateByteArray(
+                    add_set.Select((s) => CmdToByteArray(true, s)).Concat(
+                        minus_set.Select((s) => CmdToByteArray(false, s))).ToArray()
+                );
+            }
         }
 
         public static Byte[] ConcateByteArray(params Byte[][] bytes_arrays)

@@ -33,7 +33,9 @@ namespace ClsMServer
         private void InitForm_Load(object sender, EventArgs e)
         {
             server = new CmdServer("192.168.1.239", 5566, (c) => {
-                Log(String.Format("Client {0} connect\n", new object[] { c }));
+                Log(String.Format("Client {0} connect\n", new object[] { c.ClientInfo }));
+                // send diff with default blacklist
+                c.SendAsync(form1.blacklist.ToByteArray());
             }, (c) => {
                 Log(String.Format("Client {0} disconnect\n", new object[] { c }));
             });

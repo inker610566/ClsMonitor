@@ -15,13 +15,13 @@ namespace ClsMServer
         private AddForm addForm;
         private CmdServer cmdServer;
         private InitForm msgForm;
-        private BlackList blacklist;
+        public BlackList blacklist;
         public Form1(CmdServer server, InitForm msgForm)
         {
             this.cmdServer = server;
             this.msgForm = msgForm;
             InitializeComponent();
-            this.blacklist = new BlackList(listView1);
+            this.blacklist = new BlackList(listView1, "blacklist.txt");
             addForm = new AddForm();
 
             listView1.ContextMenuStrip = ClsMServer.MenuFactory.Produce(
@@ -36,30 +36,13 @@ namespace ClsMServer
                 ()=>
                 {
                     // Enable
-                    if (listView1.SelectedItems.Count == 0)
-                        return;
-                    Byte[][] bs = new Byte[listView1.SelectedItems.Count][];
-                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
-                    {
-                        bs[i] = BlackList.CmdToByteArray(true, listView1.SelectedItems[i].Text);
-                    }
-                    cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
-
-                    foreach(System.Windows.Forms.ListViewItem i in listView1.SelectedItems)
-                        i.ForeColor = Color.FromKnownColor(KnownColor.Maroon);
+                    Byte[] msg = blacklist.Enable();
+                    if(msg != null) cmdServer.Broadcast(msg);
                 },
                 ()=>
                 {
-                    if (listView1.SelectedItems.Count == 0)
-                        return;
-                    Byte[][] bs = new Byte[listView1.SelectedItems.Count][];
-                    for(int i = 0; i < listView1.SelectedItems.Count; i ++)
-                    {
-                        bs[i] = BlackList.CmdToByteArray(false, listView1.SelectedItems[i].Text);
-                    }
-                    cmdServer.Broadcast(BlackList.ConcateByteArray(bs));
-                    foreach(System.Windows.Forms.ListViewItem i in listView1.SelectedItems)
-                        i.ForeColor = Color.FromKnownColor(KnownColor.Black);
+                    Byte[] msg = blacklist.Disable();
+                    if(msg != null) cmdServer.Broadcast(msg);
                 });
         }
     }

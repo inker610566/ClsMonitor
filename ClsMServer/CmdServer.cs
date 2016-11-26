@@ -15,13 +15,14 @@ namespace ClsMServer
         private LinkedList<AsyncClient> clients = new LinkedList<AsyncClient>();
         private bool exit = false;
 
-        public delegate void ClientEvent(string client);
+        public delegate void ClientInfoEvent(string client);
+        public delegate void ClientEvent(AsyncClient client);
         //private ClientEvent onConnect;
-        private ClientEvent onDisconnect;
+        private ClientInfoEvent onDisconnect;
 
         // NOTE: onDisconnect probably will not be triggered right after client disconnect
         //       (usaually triggered after few rounds of broadcast)
-        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null, ClientEvent onDisconnect = null)
+        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null, ClientInfoEvent onDisconnect = null)
         {
             this.onDisconnect = onDisconnect;
             server = new TcpListener(IPAddress.Parse(IP), port);
@@ -36,7 +37,7 @@ namespace ClsMServer
                         clients.AddLast(c);
                     }
                     if(onConnect != null)
-                        onConnect(c.ClientInfo);
+                        onConnect(c);
                 }
             }).Start();
         }
