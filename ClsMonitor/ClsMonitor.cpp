@@ -22,6 +22,12 @@ HINSTANCE hInst;                                // 目前執行個體
 WCHAR szTitle[MAX_LOADSTRING];                  // 標題列文字
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主視窗類別名稱
 
+void BanBlacklist(Blacklist *blist, EventQueue *queue)
+{
+	for (const auto& elem : blist->CopyBlist())
+	   queue->Push(new QueueEvent(true, elem));
+}
+
 Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
 {
 	// read blacklist
@@ -33,12 +39,6 @@ Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
 	Blacklist ret(v);
 	BanBlacklist(&ret, queue);
     return ret;
-}
-
-void BanBlacklist(Blacklist *blist, EventQueue *queue)
-{
-	for (const auto& elem : blist->CopyBlist())
-	   queue->Push(new QueueEvent(true, elem));
 }
 
 void BlacklistNTReconnect(void *params)
@@ -81,6 +81,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	SockThread st("192.168.1.239", 5566, &queue);
 	BlacklistNT ntlist(&st, &list);
 	st.SetConnectCallback({BlacklistNTReconnect, &ntlist});
+	DisconnectParam dp = {&list, &queue};
+	st.SetDisconnectCallback({ BlacklistNTDisconnect, &dp });
 	st.Start();
 	EventSink sink(&proxy, &queue, &ntlist);
 	proxy.SetCreateProcessCallback(&sink);

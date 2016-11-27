@@ -82,6 +82,7 @@ DWORD WINAPI PSockThread(
 			}
 		}
 		st->IsConnected = false;
+		st->DisconnectEvent();
 	} while (true);
 	return 0;
 }
@@ -109,6 +110,7 @@ SockThread::SockThread(const char* ip, int port, EventQueue* q)
 	:ip(ip), port(port), q(q), IsConnected(false)
 {
 	connect_cb.cb = NULL;
+	disconnect_cb.cb = NULL;
 }
 
 void SockThread::Start()
@@ -129,10 +131,21 @@ void SockThread::SetConnectCallback(NTCallback cb)
 	connect_cb = cb;
 }
 
+void SockThread::SetDisconnectCallback(NTCallback cb)
+{
+	disconnect_cb = cb;
+}
+
 void SockThread::ConnectEvent()
 {
 	if (connect_cb.cb != NULL)
 		connect_cb.cb(connect_cb.params);
+}
+
+void SockThread::DisconnectEvent()
+{
+	if (disconnect_cb.cb != NULL)
+		disconnect_cb.cb(disconnect_cb.params);
 }
 
 SockThread::~SockThread()
