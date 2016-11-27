@@ -12,6 +12,12 @@ Blacklist::Blacklist(vector<wstring> v):blist(v.begin(), v.end())
 	mutex = CreateMutex(NULL, FALSE, NULL);
 }
 
+Blacklist::Blacklist(const Blacklist& blist)
+	:blist(blist.blist)
+{
+	mutex = CreateMutex(NULL, FALSE, NULL);
+}
+
 bool Blacklist::Add(const std::wstring Name)
 {
 	WaitForSingleObject(mutex, INFINITE);
@@ -36,8 +42,16 @@ bool Blacklist::Query(const std::wstring Name) const
 	return r;
 }
 
+std::unordered_set<std::wstring> Blacklist::CopyBlist()
+{
+	WaitForSingleObject(mutex, INFINITE);
+	std::unordered_set<std::wstring> ret = blist;
+	ReleaseMutex(mutex);
+	return ret;
+}
 
 Blacklist::~Blacklist()
 {
 	CloseHandle(mutex);
 }
+

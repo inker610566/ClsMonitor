@@ -8,6 +8,7 @@
 #include "WMIServiceProxy.h"
 #include "EventQueue.h"
 #include "Blacklist.h"
+#include "BlacklistNT.h"
 #include "SockThread.h"
 #include <vector>
 #include <string>
@@ -29,9 +30,32 @@ Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
 	vector<wstring> v;
 	while (getline(stream, line))
 	   v.push_back(line);
-   for (int i = 0; i < v.size(); i++)
-	   queue->Push(new QueueEvent(true, v[i]));
-   return Blacklist(v);
+	Blacklist ret(v);
+	BanBlacklist(&ret, queue);
+    return ret;
+}
+
+void BanBlacklist(Blacklist *blist, EventQueue *queue)
+{
+	for (const auto& elem : blist->CopyBlist())
+	   queue->Push(new QueueEvent(true, elem));
+}
+
+void BlacklistNTReconnect(void *params)
+{
+	BlacklistNT *blist = (BlacklistNT*)params;
+	blist->Reset();
+}
+
+struct DisconnectParam
+{
+	Blacklist *blist;
+	EventQueue *queue;
+};
+void BlacklistNTDisconnect(void *params)
+{
+	DisconnectParam *p = (DisconnectParam*)params;
+	BanBlacklist(p->blist, p->queue);
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -54,9 +78,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	wchar_t ww[512];
 	ExpandEnvironmentStrings(L"%AppData%\\blacklist.txt", ww, 512);
 	Blacklist list = InitBlacklist(ww, &queue);
-	EventSink sink(&proxy, &queue, &list);
-	proxy.SetCreateProcessCallback(&sink);
 	SockThread st("192.168.1.239", 5566, &queue);
+	BlacklistNT ntlist(&st, &list);
+	st.SetConnectCallback({BlacklistNTReconnect, &ntlist});
+	st.Start();
+	EventSink sink(&proxy, &queue, &ntlist);
+	proxy.SetCreateProcessCallback(&sink);
 
 	while (true)
 	{
@@ -67,11 +94,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			proxy.TerminateProcessesWithName(evt->Name);
 			break;
 		case Add:
-			list.Add(evt->Name);
+			ntlist.Add(evt->Name);
 			proxy.TerminateProcessesWithName(evt->Name);
 			break;
 		case Del:
-			list.Del(evt->Name);
+			ntlist.Del(evt->Name);
 			break;
 		}
 		delete evt;

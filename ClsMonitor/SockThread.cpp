@@ -20,20 +20,20 @@ DWORD WINAPI PSockThread(
 	_In_ LPVOID lpParameter
 )
 {
+	SockThread *st = (SockThread*)lpParameter;
+
+	// Init Winsock
+	WSADATA wsaData;
+	int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+	if (iResult != 0) {
+		 stringstream ss;
+		 ss << "WSAStartup failed with error: " << iResult;
+		 ConsoleLogger::getInstance()->log(ss.str());
+		 return 0;
+	}
+
 	do
 	{
-		SockThread *st = (SockThread*)lpParameter;
-
-		// Init Winsock
-		WSADATA wsaData;
-		int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-		if (iResult != 0) {
-			 stringstream ss;
-			 ss << "WSAStartup failed with error: " << iResult;
-			 ConsoleLogger::getInstance()->log(ss.str());
-			 break;
-		}
-
 		SOCKADDR_IN addr;
 		ZeroMemory( &addr, sizeof(addr));
 		addr.sin_addr.s_addr = inet_addr(st->ip);
@@ -55,6 +55,9 @@ DWORD WINAPI PSockThread(
 			 ConsoleLogger::getInstance()->log(ss.str());
 			 continue;
 		}
+
+		st->IsConnected = true;
+		st->ConnectEvent();
 
 		while (true)
 		{
@@ -78,6 +81,7 @@ DWORD WINAPI PSockThread(
 					break;
 			}
 		}
+		st->IsConnected = false;
 	} while (true);
 	return 0;
 }
@@ -102,7 +106,12 @@ int RecvUtil(SOCKET s, char *buf, int len)
 
 
 SockThread::SockThread(const char* ip, int port, EventQueue* q)
-	:ip(ip), port(port), q (q)
+	:ip(ip), port(port), q(q), IsConnected(false)
+{
+	connect_cb.cb = NULL;
+}
+
+void SockThread::Start()
 {
 	// Start Thread
 	thread = CreateThread(
@@ -115,6 +124,16 @@ SockThread::SockThread(const char* ip, int port, EventQueue* q)
 	);
 }
 
+void SockThread::SetConnectCallback(NTCallback cb)
+{
+	connect_cb = cb;
+}
+
+void SockThread::ConnectEvent()
+{
+	if (connect_cb.cb != NULL)
+		connect_cb.cb(connect_cb.params);
+}
 
 SockThread::~SockThread()
 {
