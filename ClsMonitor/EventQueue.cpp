@@ -6,7 +6,7 @@ EventQueue::EventQueue()
 {
 	pending_pop = CreateEvent(
 		NULL,
-		FALSE,
+		TRUE,
 		FALSE,
 		NULL
 	);
@@ -19,9 +19,11 @@ QueueEvent * EventQueue::Pop()
 	EnterCriticalSection(&sec);
 	if (!q.empty())
 	{
-		evt = q.back();
+		evt = q.front();
 		q.pop();
 	}
+	else
+		ResetEvent(pending_pop);
 	LeaveCriticalSection(&sec);
 	if (evt == nullptr)
 	{
@@ -30,7 +32,6 @@ QueueEvent * EventQueue::Pop()
 	}
 	return evt;
 }
-
 
 void EventQueue::Push(QueueEvent * evt)
 {

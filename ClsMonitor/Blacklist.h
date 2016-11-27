@@ -6,6 +6,7 @@ class Blacklist
 {
 public:
 	Blacklist(std::initializer_list<std::wstring> list);
+	Blacklist(std::vector<std::wstring> v);
 	// return if not in list
 	bool Add(const std::wstring Name);
 	// return if in list

@@ -7,6 +7,11 @@ Blacklist::Blacklist(initializer_list<wstring> Ilist):blist(Ilist)
 	mutex = CreateMutex(NULL, FALSE, NULL);
 }
 
+Blacklist::Blacklist(vector<wstring> v):blist(v.begin(), v.end())
+{
+	mutex = CreateMutex(NULL, FALSE, NULL);
+}
+
 bool Blacklist::Add(const std::wstring Name)
 {
 	WaitForSingleObject(mutex, INFINITE);

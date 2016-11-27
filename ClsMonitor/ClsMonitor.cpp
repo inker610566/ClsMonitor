@@ -8,6 +8,11 @@
 #include "WMIServiceProxy.h"
 #include "EventQueue.h"
 #include "Blacklist.h"
+#include "SockThread.h"
+#include <vector>
+#include <string>
+#include <fstream>
+#include <cstdlib>
 
 #define MAX_LOADSTRING 100
 
@@ -15,6 +20,19 @@
 HINSTANCE hInst;                                // 目前執行個體
 WCHAR szTitle[MAX_LOADSTRING];                  // 標題列文字
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主視窗類別名稱
+
+Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
+{
+	// read blacklist
+	wifstream stream(filepath);
+	wstring line;
+	vector<wstring> v;
+	while (getline(stream, line))
+	   v.push_back(line);
+   for (int i = 0; i < v.size(); i++)
+	   queue->Push(new QueueEvent(true, v[i]));
+   return Blacklist(v);
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -33,10 +51,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	WMIServiceProxy proxy;
 	EventQueue queue;
-	Blacklist list({L"notepad.exe"}); // put default list here
+	wchar_t ww[512];
+	ExpandEnvironmentStrings(L"%AppData%\\blacklist.txt", ww, 512);
+	Blacklist list = InitBlacklist(ww, &queue);
 	EventSink sink(&proxy, &queue, &list);
 	proxy.SetCreateProcessCallback(&sink);
-	//proxy.TerminateProcessesWithName(L"notepad.exe");
+	SockThread st("192.168.1.239", 5566, &queue);
 
 	while (true)
 	{
@@ -44,7 +64,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		switch (evt->type)
 		{
 		case Kill:
-			proxy.TerminateProcess(evt->RelPath.bstrVal);
+			proxy.TerminateProcessesWithName(evt->Name);
 			break;
 		case Add:
 			list.Add(evt->Name);
