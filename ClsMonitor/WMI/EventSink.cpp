@@ -1,9 +1,9 @@
 // EventSink.cpp
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "EventSink.h"
-#include "ConsoleLogger.h"
+#include "../Utils/ConsoleLogger.h"
 #include <sstream>
-#include "BSTRUtils.h"
+#include "../Utils/BSTRUtils.h"
 using namespace std;
 using namespace BSTRUtils;
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Blacklist.h"
-#include "SockThread.h"
+#include "../Network/SockThread.h"
 
 class BlacklistNT :
 	public Blacklist

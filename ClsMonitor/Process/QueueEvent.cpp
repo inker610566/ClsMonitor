@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "QueueEvent.h"
 
 QueueEvent::QueueEvent(bool AddOrDel, std::wstring Name):Name(Name)

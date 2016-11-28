@@ -83,7 +83,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -142,44 +142,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Blacklist.h" />
-    <ClInclude Include="BlacklistNT.h" />
-    <ClInclude Include="BSTRUtils.h" />
+    <ClInclude Include="Process\Blacklist.h" />
+    <ClInclude Include="Process\BlacklistNT.h" />
+    <ClInclude Include="Utils\BSTRUtils.h" />
     <ClInclude Include="ClsMonitor.h" />
-    <ClInclude Include="ConsoleLogger.h" />
-    <ClInclude Include="EventQueue.h" />
-    <ClInclude Include="EventSink.h" />
-    <ClInclude Include="QueueEvent.h" />
+    <ClInclude Include="Utils\ConsoleLogger.h" />
+    <ClInclude Include="Process\EventQueue.h" />
+    <ClInclude Include="WMI\EventSink.h" />
+    <ClInclude Include="Process\QueueEvent.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SockThread.h" />
-    <ClInclude Include="SockThreadException.h" />
+    <ClInclude Include="Network\SockThread.h" />
+    <ClInclude Include="Network\SockThreadException.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WMIServiceConnectException.h" />
-    <ClInclude Include="WMIServiceProxy.h" />
+    <ClInclude Include="WMI\WMIServiceConnectException.h" />
+    <ClInclude Include="WMI\WMIServiceProxy.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Blacklist.cpp" />
-    <ClCompile Include="BlacklistNT.cpp" />
-    <ClCompile Include="BSTRUtils.cpp" />
+    <ClCompile Include="Process\Blacklist.cpp" />
+    <ClCompile Include="Process\BlacklistNT.cpp" />
+    <ClCompile Include="Utils\BSTRUtils.cpp" />
     <ClCompile Include="ClsMonitor.cpp" />
-    <ClCompile Include="ConsoleLogger.cpp" />
-    <ClCompile Include="EventQueue.cpp" />
-    <ClCompile Include="EventSink.cpp" />
-    <ClCompile Include="QueueEvent.cpp" />
-    <ClCompile Include="SockThread.cpp" />
-    <ClCompile Include="SockThreadException.cpp" />
+    <ClCompile Include="Utils\ConsoleLogger.cpp" />
+    <ClCompile Include="Process\EventQueue.cpp" />
+    <ClCompile Include="WMI\EventSink.cpp" />
+    <ClCompile Include="Process\QueueEvent.cpp" />
+    <ClCompile Include="Network\SockThread.cpp" />
+    <ClCompile Include="Network\SockThreadException.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WMIServiceConnectException.cpp" />
-    <ClCompile Include="WMIServiceProxy.cpp" />
+    <ClCompile Include="WMI\WMIServiceConnectException.cpp" />
+    <ClCompile Include="WMI\WMIServiceProxy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ClsMonitor.rc" />

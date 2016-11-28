@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include "SockThread.h"
+#include "../Network/SockThread.h"
 #include <windows.h>
 #include <winsock2.h>
 #pragma comment(lib,"WS2_32")
@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sstream>
-#include "ConsoleLogger.h"
-#include "SockThreadException.h"
+#include "../Utils/ConsoleLogger.h"
+#include "../Network/SockThreadException.h"
 using namespace std;
 
 char RecvBuf[256];

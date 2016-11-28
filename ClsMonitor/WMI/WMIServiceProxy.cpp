@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "WMIServiceProxy.h"
-#include "ConsoleLogger.h"
+#include "../Utils/ConsoleLogger.h"
 #include <sstream>
 using namespace std;
 

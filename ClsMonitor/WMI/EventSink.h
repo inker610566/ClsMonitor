@@ -6,8 +6,8 @@
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
-#include "Blacklist.h"
-#include "EventQueue.h"
+#include "../Process/Blacklist.h"
+#include "../Process/EventQueue.h"
 #include "WMIServiceProxy.h"
 
 #pragma comment(lib, "wbemuuid.lib")

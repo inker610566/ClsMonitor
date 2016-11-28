@@ -1,5 +1,5 @@
 #pragma once
-#include "EventQueue.h"
+#include "../Process/EventQueue.h"
 
 typedef void(*Callback)(void*);
 

@@ -3,13 +3,13 @@
 
 #include "stdafx.h"
 #include "ClsMonitor.h"
-#include "EventSink.h"
-#include "ConsoleLogger.h"
-#include "WMIServiceProxy.h"
-#include "EventQueue.h"
-#include "Blacklist.h"
-#include "BlacklistNT.h"
-#include "SockThread.h"
+#include "WMI\EventSink.h"
+#include "Utils\ConsoleLogger.h"
+#include "WMI\WMIServiceProxy.h"
+#include "Process\EventQueue.h"
+#include "Process\Blacklist.h"
+#include "Process\BlacklistNT.h"
+#include "Network\SockThread.h"
 #include <vector>
 #include <string>
 #include <fstream>
