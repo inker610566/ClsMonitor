@@ -1,31 +1,49 @@
 #pragma once
-#include "../Process/EventQueue.h"
 
-typedef void(*Callback)(void*);
+#include "Frame.h"
 
-struct NTCallback
+namespace Network
 {
-	Callback cb;
-	void *params;
-};
+	typedef void(*Callback)(void*);
+	typedef void(*FrameCallback)(void*, Frame*);
 
-class SockThread
-{
-	DWORD threadid;
-	HANDLE thread;
-	NTCallback connect_cb;
-	NTCallback disconnect_cb;
-public:
-	const char* ip;
-	int port;
-	bool IsConnected;
-	EventQueue *q;
-	SockThread(const char* ip, int port, EventQueue *q);
-	void Start();
-	void SetConnectCallback(NTCallback cb);
-	void SetDisconnectCallback(NTCallback cb);
-	void ConnectEvent();
-	void DisconnectEvent();
-	~SockThread();
-};
+	struct NTCallback
+	{
+		Callback cb;
+		void *params;
+	};
 
+	struct NTFrameCallback
+	{
+		FrameCallback cb;
+		void *params;
+	};
+
+	class SockThread
+	{
+	public:
+		struct SockThreadParam
+		{
+			SockThread *st;
+			char *RecvBuf;
+		};
+		const char* ip;
+		int port;
+		SockThread(const char* ip, int port);
+		void Start();
+		void SetConnectCallback(NTCallback cb);
+		void SetDisconnectCallback(NTCallback cb);
+		void SetFrameCallback(NTFrameCallback cb);
+		void TriggerConnectEvent();
+		void TriggerDisconnectEvent();
+		void TriggerFrameEvent(Frame *f);
+		~SockThread();
+	private:
+		DWORD threadid;
+		HANDLE thread;
+		NTCallback connect_cb;
+		NTCallback disconnect_cb;
+		NTFrameCallback frame_cb;
+		SockThreadParam stp;
+	};
+}

@@ -7,8 +7,7 @@ using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 #include "../Process/Blacklist.h"
-#include "../Process/EventQueue.h"
-#include "WMIServiceProxy.h"
+#include "../Process/KillProcessScheduler.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -17,11 +16,11 @@ class EventSink : public IWbemObjectSink
 	LONG m_lRef;
 	bool bDone;
 	WMIServiceProxy *m_proxy;
-	EventQueue *q;
+	Process::KillProcessScheduler *sch;
 	Blacklist *list;
 
 public:
-	EventSink(WMIServiceProxy* proxy, EventQueue *q, Blacklist *list);
+	EventSink(Process::KillProcessScheduler *sch, Blacklist *list);
 	~EventSink() { bDone = true; }
 
 	virtual ULONG STDMETHODCALLTYPE AddRef();

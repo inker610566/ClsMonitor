@@ -3,18 +3,20 @@
 #include<comdef.h>
 #include<string>
 
-enum EventType
+namespace Process
 {
-	Add, Del, Kill
-};
+	enum EventType
+	{
+		Add, Del, Kill, Reset
+	};
 
-class QueueEvent
-{
-public:
-	QueueEvent(bool AddOrDel, std::wstring Name);
-	QueueEvent(VARIANT RelPath);
-	~QueueEvent();
-	std::wstring Name;
-	EventType type;
-};
-
+	class QueueEvent
+	{
+	public:
+		QueueEvent(EventType type, std::wstring Name);
+		QueueEvent(EventType type);
+		~QueueEvent();
+		std::wstring Name;
+		EventType type;
+	};
+}

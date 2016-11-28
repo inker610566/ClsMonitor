@@ -1,16 +1,20 @@
 #include "../stdafx.h"
 #include "QueueEvent.h"
 
-QueueEvent::QueueEvent(bool AddOrDel, std::wstring Name):Name(Name)
+namespace Process
 {
-	type = AddOrDel ? Add : Del;
-}
+	QueueEvent::QueueEvent(EventType type, std::wstring Name)
+		: type(type), Name(Name)
+	{
+	}
 
-QueueEvent::QueueEvent(VARIANT Name):Name(Name.bstrVal, SysStringLen(Name.bstrVal))
-{
-	type = Kill;
-}
+	QueueEvent::QueueEvent(EventType type)
+		: type(Reset)
+	{
+		assert(type == Reset);
+	}
 
-QueueEvent::~QueueEvent()
-{
+	QueueEvent::~QueueEvent()
+	{
+	}
 }

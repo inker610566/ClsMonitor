@@ -142,8 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Network\Frame.h" />
     <ClInclude Include="Process\Blacklist.h" />
-    <ClInclude Include="Process\BlacklistNT.h" />
+    <ClInclude Include="Process\KillProcessScheduler.h" />
     <ClInclude Include="Utils\BSTRUtils.h" />
     <ClInclude Include="ClsMonitor.h" />
     <ClInclude Include="Utils\ConsoleLogger.h" />
@@ -159,8 +160,9 @@
     <ClInclude Include="WMI\WMIServiceProxy.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Network\Frame.cpp" />
     <ClCompile Include="Process\Blacklist.cpp" />
-    <ClCompile Include="Process\BlacklistNT.cpp" />
+    <ClCompile Include="Process\KillProcessScheduler.cpp" />
     <ClCompile Include="Utils\BSTRUtils.cpp" />
     <ClCompile Include="ClsMonitor.cpp" />
     <ClCompile Include="Utils\ConsoleLogger.cpp" />

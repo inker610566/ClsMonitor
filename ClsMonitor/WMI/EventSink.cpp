@@ -6,9 +6,10 @@
 #include "../Utils/BSTRUtils.h"
 using namespace std;
 using namespace BSTRUtils;
+using namespace Process;
 
-EventSink::EventSink(WMIServiceProxy *proxy, EventQueue *q, Blacklist *list)
-	:m_lRef(0), m_proxy(proxy), q(q), list(list)
+EventSink::EventSink(KillProcessScheduler *sch, Blacklist *list)
+	:m_lRef(0), sch(sch), list(list)
 {
 }
 
@@ -133,9 +134,10 @@ HRESULT EventSink::Indicate(long lObjectCount,
 		pIUnknown->Release();
 
 		hres = pinstPkgStatus->Get(L"Name", 0, &vName, NULL, NULL);
-		if (list->Query(BSTRToWString(vName.bstrVal)))
+		wstring s = BSTRToWString(vName.bstrVal);
+		if (list->Query(s))
 		{
-			q->Push(new QueueEvent(vName));
+			sch->Kill(s);
 		}
 		VariantClear(&vName);
 		pinstPkgStatus->Release();

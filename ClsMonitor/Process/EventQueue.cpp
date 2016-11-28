@@ -1,48 +1,51 @@
 #include "../stdafx.h"
 #include "EventQueue.h"
 
-EventQueue::EventQueue()
+namespace Process
 {
-	pending_pop = CreateEvent(
-		NULL,
-		TRUE,
-		FALSE,
-		NULL
-	);
-	InitializeCriticalSection(&sec);
-}
-
-QueueEvent * EventQueue::Pop()
-{
-	QueueEvent *evt = nullptr;
-	EnterCriticalSection(&sec);
-	if (!q.empty())
+	EventQueue::EventQueue()
 	{
-		evt = q.front();
-		q.pop();
+		pending_pop = CreateEvent(
+			NULL,
+			TRUE,
+			FALSE,
+			NULL
+		);
+		InitializeCriticalSection(&sec);
 	}
-	else
-		ResetEvent(pending_pop);
-	LeaveCriticalSection(&sec);
-	if (evt == nullptr)
+
+	QueueEvent * EventQueue::Pop()
 	{
-		WaitForSingleObject(pending_pop, INFINITE);
-		return Pop();
+		QueueEvent *evt = nullptr;
+		EnterCriticalSection(&sec);
+		if (!q.empty())
+		{
+			evt = q.front();
+			q.pop();
+		}
+		else
+			ResetEvent(pending_pop);
+		LeaveCriticalSection(&sec);
+		if (evt == nullptr)
+		{
+			WaitForSingleObject(pending_pop, INFINITE);
+			return Pop();
+		}
+		return evt;
 	}
-	return evt;
-}
 
-void EventQueue::Push(QueueEvent * evt)
-{
-	EnterCriticalSection(&sec);
-	q.push(evt);
-	if (q.size() == 1)
-		SetEvent(pending_pop);
-	LeaveCriticalSection(&sec);
-}
+	void EventQueue::Push(QueueEvent * evt)
+	{
+		EnterCriticalSection(&sec);
+		q.push(evt);
+		if (q.size() == 1)
+			SetEvent(pending_pop);
+		LeaveCriticalSection(&sec);
+	}
 
-EventQueue::~EventQueue()
-{
-	DeleteCriticalSection(&sec);
-	CloseHandle(pending_pop);
+	EventQueue::~EventQueue()
+	{
+		DeleteCriticalSection(&sec);
+		CloseHandle(pending_pop);
+	}
 }
