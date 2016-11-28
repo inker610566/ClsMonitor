@@ -15,13 +15,13 @@ namespace ClsMServer
         private AddForm addForm;
         private CmdServer cmdServer;
         private InitForm msgForm;
-        public BlackList blacklist;
-        public Form1(CmdServer server, InitForm msgForm)
+        public BlacklistControl blacklist;
+        public Form1(CmdServer server, InitForm msgForm, Blacklist blist)
         {
             this.cmdServer = server;
             this.msgForm = msgForm;
             InitializeComponent();
-            this.blacklist = new BlackList(listView1, "blacklist.txt");
+            this.blacklist = new BlacklistControl(listView1, blist);
             addForm = new AddForm();
 
             listView1.ContextMenuStrip = ClsMServer.MenuFactory.Produce(

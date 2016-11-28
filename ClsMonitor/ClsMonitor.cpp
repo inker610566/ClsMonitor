@@ -3,16 +3,20 @@
 
 #include "stdafx.h"
 #include "ClsMonitor.h"
-#include "EventSink.h"
-#include "ConsoleLogger.h"
-#include "WMIServiceProxy.h"
-#include "EventQueue.h"
-#include "Blacklist.h"
-#include "SockThread.h"
+#include "WMI\EventSink.h"
+#include "Utils\ConsoleLogger.h"
+#include "WMI\WMIServiceProxy.h"
+#include "Process\EventQueue.h"
+#include "Process\Blacklist.h"
+#include "Network\SockThread.h"
+#include "Process\KillProcessScheduler.h"
 #include <vector>
 #include <string>
 #include <fstream>
 #include <cstdlib>
+
+using Process::KillProcessScheduler;
+using namespace Network;
 
 #define MAX_LOADSTRING 100
 
@@ -21,7 +25,7 @@ HINSTANCE hInst;                                // 目前執行個體
 WCHAR szTitle[MAX_LOADSTRING];                  // 標題列文字
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主視窗類別名稱
 
-Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
+Blacklist *InitBlacklist(wstring filepath)
 {
 	// read blacklist
 	wifstream stream(filepath);
@@ -29,9 +33,35 @@ Blacklist InitBlacklist(wstring filepath, EventQueue *queue)
 	vector<wstring> v;
 	while (getline(stream, line))
 	   v.push_back(line);
-   for (int i = 0; i < v.size(); i++)
-	   queue->Push(new QueueEvent(true, v[i]));
-   return Blacklist(v);
+	Blacklist *ret = new Blacklist(v);
+    return ret;
+}
+
+void BlacklistNTReconnect(void *params)
+{
+	KillProcessScheduler *blist = (KillProcessScheduler*) params;
+	blist->Reset();
+}
+
+void BlacklistNTDisconnect(void *params)
+{
+	KillProcessScheduler *p = (KillProcessScheduler*) params;
+	p->Reset();
+}
+
+void NTFrame(void *params, Frame *f)
+{
+	KillProcessScheduler *p = (KillProcessScheduler*) params;
+	switch (f->type)
+	{
+	case 0:
+		p->Del(f->param);
+		break;
+	case 1:
+		p->Add(f->param);
+		break;
+	}
+	delete f;
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -50,32 +80,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Get Setting
 
 	WMIServiceProxy proxy;
-	EventQueue queue;
 	wchar_t ww[512];
 	ExpandEnvironmentStrings(L"%AppData%\\blacklist.txt", ww, 512);
-	Blacklist list = InitBlacklist(ww, &queue);
-	EventSink sink(&proxy, &queue, &list);
-	proxy.SetCreateProcessCallback(&sink);
-	SockThread st("192.168.1.239", 5566, &queue);
+	Blacklist *list = InitBlacklist(ww);
+	KillProcessScheduler scheduler(list, &proxy);
+	scheduler.Reset(); // kill all process in default list at start
 
-	while (true)
-	{
-		QueueEvent* evt = queue.Pop();
-		switch (evt->type)
-		{
-		case Kill:
-			proxy.TerminateProcessesWithName(evt->Name);
-			break;
-		case Add:
-			list.Add(evt->Name);
-			proxy.TerminateProcessesWithName(evt->Name);
-			break;
-		case Del:
-			list.Del(evt->Name);
-			break;
-		}
-		delete evt;
-	}
+	SockThread st("192.168.1.239", 5566);
+	st.SetConnectCallback({BlacklistNTReconnect, &scheduler});
+	st.SetDisconnectCallback({ BlacklistNTDisconnect, &scheduler });
+	st.SetFrameCallback({NTFrame, &scheduler});
+	st.Start();
+	EventSink sink(&scheduler, list);
+	proxy.SetCreateProcessCallback(&sink);
+
+	scheduler.ExecuteLoop();
 
 	return 0;
 }
