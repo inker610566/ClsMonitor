@@ -13,6 +13,7 @@
 using namespace std;
 
 #define MAX_NETWORK_BUFER 512
+#define NETWORK_POLLING_TIMESTEP 1000 // millisecond
 
 namespace Network
 {
@@ -69,7 +70,8 @@ namespace Network
 				stringstream ss;
 				ss << "Socket create error";
 				ConsoleLogger::getInstance()->log(ss.str());
-				break;
+				Sleep(NETWORK_POLLING_TIMESTEP);
+				continue;
 			}
 
 			if (connect(sock, (SOCKADDR*)&addr, sizeof(addr)) == SOCKET_ERROR) {
@@ -78,6 +80,7 @@ namespace Network
 				ss << "Socket connect error";
 				ConsoleLogger::getInstance()->log(ss.str());
 				*/
+				Sleep(NETWORK_POLLING_TIMESTEP);
 				continue;
 			}
 
@@ -101,6 +104,7 @@ namespace Network
 				st->TriggerFrameEvent(new Frame(type, wstring((const wchar_t*)RecvBuf, size / 2)));
 			}
 			st->TriggerDisconnectEvent();
+			Sleep(NETWORK_POLLING_TIMESTEP);
 		} while (true);
 		return 0;
 	}
