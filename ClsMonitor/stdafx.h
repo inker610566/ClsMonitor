@@ -16,6 +16,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <cassert>
 
 
 // TODO:  在此參考您的程式所需要的其他標頭
