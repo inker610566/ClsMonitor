@@ -12,10 +12,43 @@ namespace ScreenLocker
 {
     public partial class ScreenLockForm : Form
     {
+        private UserActivityHook hook;
         public ScreenLockForm()
         {
+            HookKeys();
             InitializeComponent();
             SetFullScreen();
+        }
+
+
+        private void KeyDownHandler(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode != Keys.J)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void KeyUpHandler(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode != Keys.J)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void KeyPressHandler(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void HookKeys()
+        {
+            hook = new UserActivityHook();
+            hook.KeyDown += new KeyEventHandler(KeyDownHandler);
+            hook.KeyPress += new KeyPressEventHandler(KeyPressHandler);
+            hook.KeyUp += new KeyEventHandler(KeyUpHandler);
+            hook.Start();
         }
 
         private void SetFullScreen()
