@@ -15,6 +15,26 @@ namespace ScreenLocker
         public ScreenLockForm()
         {
             InitializeComponent();
+            SetFullScreen();
+        }
+
+        private void SetFullScreen()
+        {
+            int minx, miny, maxx, maxy;
+            minx = miny = int.MaxValue;
+            maxx = maxy = int.MinValue;
+
+            foreach (Screen screen in Screen.AllScreens)
+            {
+                var bounds = screen.Bounds;
+                minx = Math.Min(minx, bounds.X);
+                miny = Math.Min(miny, bounds.Y);
+                maxx = Math.Max(maxx, bounds.Right);
+                maxy = Math.Max(maxy, bounds.Bottom);
+            }
+
+            Rectangle tempRect = new Rectangle(0, 0, maxx, maxy);
+            this.DesktopBounds = tempRect;
         }
     }
 }
