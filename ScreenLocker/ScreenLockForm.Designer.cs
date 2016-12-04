@@ -39,6 +39,7 @@
             this.Name = "ScreenLockForm";
             this.Text = "ScreenLocker";
             this.TopMost = true;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ScreenLockForm_KeyDown);
             this.ResumeLayout(false);
 
         }

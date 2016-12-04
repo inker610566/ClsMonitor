@@ -36,5 +36,22 @@ namespace ScreenLocker
             Rectangle tempRect = new Rectangle(0, 0, maxx, maxy);
             this.DesktopBounds = tempRect;
         }
+
+        private const int CS_NOCLOSE = 0x200;
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ClassStyle = cp.ClassStyle | CS_NOCLOSE;
+                return cp;
+            }
+        }
+
+        private void ScreenLockForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.J)
+                Close();
+        }
     }
 }
