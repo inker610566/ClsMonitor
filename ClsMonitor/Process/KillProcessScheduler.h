@@ -20,6 +20,7 @@ namespace Process
 		void DoLockScreen();
 
 	public:
+		bool IsScreenLockerStart;
 		KillProcessScheduler(Blacklist *list, WMIServiceProxy *service);
 		void Add(std::wstring name);
 		void Del(std::wstring name);

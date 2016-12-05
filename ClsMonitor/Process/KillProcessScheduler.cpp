@@ -3,8 +3,9 @@
 
 namespace Process
 {
+	const wchar_t *ScreenLockerPath = L"C:\\Program Files (x86)\\ClsMonitor\\ScreenLocker.exe";
 	Process::KillProcessScheduler::KillProcessScheduler(Blacklist *init_list, WMIServiceProxy * service)
-		:list(init_list), service(service), init_set(init_list->CopyBlist())
+		:list(init_list), service(service), init_set(init_list->CopyBlist()), IsScreenLockerStart(false)
 	{
 	}
 
@@ -56,7 +57,10 @@ namespace Process
 					service->TerminateProcessesWithName(s);
 				break;
 			case Process::LockScreen:
-				DoLockScreen();
+				if (!IsScreenLockerStart)
+				{
+					DoLockScreen();
+				}
 				break;
 			}
 			delete evt;
@@ -64,12 +68,15 @@ namespace Process
 
 	}
 
-	void KillProcessScheduler::DoLockScreen()
+	DWORD WINAPI Wait4Thread(
+		_In_ LPVOID lpParameter
+	)
 	{
+		KillProcessScheduler *kpsch = (KillProcessScheduler*)lpParameter;
 		STARTUPINFO info={sizeof(info)};
 		PROCESS_INFORMATION processInfo;
 		if (CreateProcessW(
-			L"ScreenLocker.exe",
+			ScreenLockerPath,
 			NULL,
 			NULL,
 			NULL,
@@ -88,5 +95,22 @@ namespace Process
 		{
 			ConsoleLogger::getInstance()->log("Cannot start ScreenLocker");
 		}
+		kpsch->IsScreenLockerStart = false;
+		return 0;
+	}
+
+	void KillProcessScheduler::DoLockScreen()
+	{
+		IsScreenLockerStart = true;
+
+		DWORD threadid;
+		HANDLE thread = CreateThread(
+			NULL,
+			0,
+			Wait4Thread,
+			this,
+			0,
+			&threadid
+		);
 	}
 }
