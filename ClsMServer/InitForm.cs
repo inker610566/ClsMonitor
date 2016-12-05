@@ -58,6 +58,10 @@ namespace ClsMServer
                 Log(String.Format("s1 Client {0} connect\n", new object[] { c.ClientInfo }));
                 // send diff with default blacklist
                 c.SendAsync(blacklist.ToByteArray());
+                if(IsLockScreen)
+                {
+                    c.SendAsync(new byte[] { 2, 0 }); // LockScreen event
+                }
             }, null, (c) => {
                 Log(String.Format("s1 Client {0} disconnect\n", new object[] { c }));
             });
