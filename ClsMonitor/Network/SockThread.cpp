@@ -97,9 +97,12 @@ namespace Network
 				result = RecvUtil(sock, RecvBuf, 1);
 				if (result == 0 || result == SOCKET_ERROR) break;
 				int size = *((unsigned char*)RecvBuf);
-				// Name
-				result = RecvUtil(sock, RecvBuf, size);
-				if (result == 0 || result == SOCKET_ERROR) break;
+				if (size)
+				{
+					// Name
+					result = RecvUtil(sock, RecvBuf, size);
+					if (result == 0 || result == SOCKET_ERROR) break;
+				}
 
 				st->TriggerFrameEvent(new Frame(type, wstring((const wchar_t*)RecvBuf, size / 2)));
 			}

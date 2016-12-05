@@ -35,7 +35,7 @@ namespace ScreenLocker
                 {
                     try
                     {
-                        socket.Connect("192.168.1.239", 5567); // 1.設定 IP:Port 2.連線至伺服器
+                        socket.Connect("192.168.1.239", 5567);
                         break;
                     }
                     catch(SocketException)
@@ -44,23 +44,10 @@ namespace ScreenLocker
                     }
                 }
 
-                NetworkStream stream = new NetworkStream(socket);
-                StreamReader sr = new StreamReader(stream);
-                //StreamWriter sw = new StreamWriter(stream);
-                try
-                {
-                    while (true)
-                    {
-                        sr.Read(); // block
-                        Thread.Sleep(1000);
-                    }
-                }
-                catch(IOException)
-                {
-                    Debug.Assert(!socket.Connected);
-                    // connection close
-                    SafeClose();
-                }
+                byte[] bs = new byte[1];
+                int bcnt = socket.Receive(bs);
+                Debug.Assert(bcnt == 0);
+                SafeClose();
             });
             StreamThread.Start();
         }
