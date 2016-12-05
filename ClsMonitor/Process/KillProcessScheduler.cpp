@@ -1,4 +1,5 @@
 #include "KillProcessScheduler.h"
+#include "../Utils/ConsoleLogger.h"
 
 namespace Process
 {
@@ -20,6 +21,11 @@ namespace Process
 	void KillProcessScheduler::Kill(std::wstring name)
 	{
 		queue.Push(new QueueEvent(Process::Kill, name));
+	}
+
+	void KillProcessScheduler::LockScreen()
+	{
+		queue.Push(new QueueEvent(Process::LockScreen));
 	}
 
 	void Process::KillProcessScheduler::Reset()
@@ -49,9 +55,38 @@ namespace Process
 				for (auto s: init_set)
 					service->TerminateProcessesWithName(s);
 				break;
+			case Process::LockScreen:
+				DoLockScreen();
+				break;
 			}
 			delete evt;
 		}
 
+	}
+
+	void KillProcessScheduler::DoLockScreen()
+	{
+		STARTUPINFO info={sizeof(info)};
+		PROCESS_INFORMATION processInfo;
+		if (CreateProcessW(
+			L"ScreenLocker.exe",
+			NULL,
+			NULL,
+			NULL,
+			FALSE,
+			0,
+			NULL,
+			NULL,
+			&info,
+			&processInfo))
+		{
+			WaitForSingleObject(processInfo.hProcess, INFINITE);
+			CloseHandle(processInfo.hProcess);
+			CloseHandle(processInfo.hThread);
+		}
+		else
+		{
+			ConsoleLogger::getInstance()->log("Cannot start ScreenLocker");
+		}
 	}
 }

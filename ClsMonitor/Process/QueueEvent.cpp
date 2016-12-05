@@ -9,9 +9,8 @@ namespace Process
 	}
 
 	QueueEvent::QueueEvent(EventType type)
-		: type(Reset)
+		: type(type)
 	{
-		assert(type == Reset);
 	}
 
 	QueueEvent::~QueueEvent()
