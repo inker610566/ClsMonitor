@@ -12,7 +12,13 @@ namespace ClsMServer
     {
         private ContextMenuStrip cms = null;
 
-        public static ContextMenuStrip Produce(Action ClickAdd, Action ClickEnable, Action ClickDisable)
+        public static ContextMenuStrip Produce(
+            Action ClickAdd,
+            Action ClickEnable,
+            Action ClickDisable,
+            Action ClickLock,
+            Action ClickUnLock
+        )
         {
             String[] OptionName = new String[] {
                 "Add", "Enable", "Disable"
@@ -35,6 +41,14 @@ namespace ClsMServer
             cms.Items.Add(
             new ToolStripButton("Disable", null, new EventHandler(delegate (Object o, EventArgs a) {
                 ClickDisable();
+            })));
+            cms.Items.Add(
+            new ToolStripButton("Lock", null, new EventHandler(delegate (Object o, EventArgs a) {
+                ClickLock();
+            })));
+            cms.Items.Add(
+            new ToolStripButton("UnLock", null, new EventHandler(delegate (Object o, EventArgs a) {
+                ClickUnLock();
             })));
             return cms;
         }

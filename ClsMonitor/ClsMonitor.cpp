@@ -60,6 +60,9 @@ void NTFrame(void *params, Frame *f)
 	case 1:
 		p->Add(f->param);
 		break;
+	case 2:
+		p->LockScreen();
+		break;
 	}
 	delete f;
 }

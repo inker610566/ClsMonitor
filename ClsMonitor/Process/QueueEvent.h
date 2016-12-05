@@ -7,7 +7,7 @@ namespace Process
 {
 	enum EventType
 	{
-		Add, Del, Kill, Reset
+		Add, Del, Kill, Reset, LockScreen
 	};
 
 	class QueueEvent
