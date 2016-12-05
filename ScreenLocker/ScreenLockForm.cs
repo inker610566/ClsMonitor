@@ -12,18 +12,25 @@ namespace ScreenLocker
 {
     public partial class ScreenLockForm : Form
     {
+        private string UnLockKeys = "WINDOWSUPDATE";
+        private int UnLockMatch;
         private UserActivityHook hook;
         public ScreenLockForm()
         {
+            InitKeyChecker();
             HookKeys();
             InitializeComponent();
             SetFullScreen();
         }
 
+        private void InitKeyChecker()
+        {
+            UnLockMatch = 0;
+        }
 
         private void KeyDownHandler(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode != Keys.J)
+            if(!(65 <= e.KeyValue && e.KeyValue < 65+26))
             {
                 e.Handled = true;
             }
@@ -31,7 +38,7 @@ namespace ScreenLocker
 
         private void KeyUpHandler(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode != Keys.J)
+            if(!(65 <= e.KeyValue && e.KeyValue < 65+26))
             {
                 e.Handled = true;
             }
@@ -39,7 +46,6 @@ namespace ScreenLocker
 
         private void KeyPressHandler(object sender, KeyPressEventArgs e)
         {
-            e.Handled = true;
         }
 
         private void HookKeys()
@@ -48,7 +54,7 @@ namespace ScreenLocker
             hook.KeyDown += new KeyEventHandler(KeyDownHandler);
             hook.KeyPress += new KeyPressEventHandler(KeyPressHandler);
             hook.KeyUp += new KeyEventHandler(KeyUpHandler);
-            hook.Start();
+            hook.Start(false, true);
         }
 
         private void SetFullScreen()
@@ -83,8 +89,14 @@ namespace ScreenLocker
 
         private void ScreenLockForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.J)
-                Close();
+            if (e.KeyValue == Convert.ToInt32(UnLockKeys[UnLockMatch]))
+            {
+                UnLockMatch++;
+                if (UnLockMatch == UnLockKeys.Length)
+                    this.Close();
+            }
+            else
+                UnLockMatch = 0;
         }
     }
 }
