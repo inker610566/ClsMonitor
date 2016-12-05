@@ -20,17 +20,19 @@ namespace ScreenLocker
         private int UnLockMatch;
         private UserActivityHook hook;
         private Thread StreamThread;
+        private Socket socket;
+
         public ScreenLockForm()
         {
             InitKeyChecker();
             HookKeys();
             InitializeComponent();
             SetFullScreen();
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // stream thread
             StreamThread = new Thread(() =>
             {
-                Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 while (true)
                 {
                     try
@@ -45,8 +47,13 @@ namespace ScreenLocker
                 }
 
                 byte[] bs = new byte[1];
-                int bcnt = socket.Receive(bs);
-                Debug.Assert(bcnt == 0);
+                try
+                {
+                    int bcnt = socket.Receive(bs);
+                }
+                catch(Exception)
+                {
+                }
                 SafeClose();
             });
             StreamThread.Start();
@@ -136,7 +143,7 @@ namespace ScreenLocker
                 return;
             }
 
-            StreamThread.Abort();
+            socket.Close();
             this.Close();
         }
     }
