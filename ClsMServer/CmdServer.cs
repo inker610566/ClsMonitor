@@ -17,12 +17,16 @@ namespace ClsMServer
 
         public delegate void ClientInfoEvent(string client);
         public delegate void ClientEvent(AsyncClient client);
+        public delegate bool ClientResultEvent(AsyncClient client);
         //private ClientEvent onConnect;
         private ClientInfoEvent onDisconnect;
 
         // NOTE: onDisconnect probably will not be triggered right after client disconnect
         //       (usaually triggered after few rounds of broadcast)
-        public CmdServer(string IP, Int32 port, ClientEvent onConnect = null, ClientInfoEvent onDisconnect = null)
+        public CmdServer(string IP, Int32 port,
+            ClientEvent onConnect = null,
+            ClientResultEvent PreConnect = null,
+            ClientInfoEvent onDisconnect = null)
         {
             this.onDisconnect = onDisconnect;
             server = new TcpListener(IPAddress.Parse(IP), port);
@@ -32,6 +36,10 @@ namespace ClsMServer
                 while (!exit)
                 {
                     AsyncClient c = new AsyncClient(server.AcceptTcpClient());
+                    if (PreConnect != null && !PreConnect(c))
+                        continue;
+                    // Be aware of the interval after PreConnect and before lock clients
+                    // clients can be not empty when filter through PreConnect
                     lock (clients)
                     {
                         clients.AddLast(c);
@@ -63,6 +71,19 @@ namespace ClsMServer
                     }
                 }
                 if(OnBroadcastFinish != null) OnBroadcastFinish();
+            }).Start();
+        }
+
+        public void BroadcastClose()
+        {
+            new Thread(() =>
+            {
+                lock (clients)
+                {
+                    for(var node = clients.First; node != null; node = node.Next)
+                        node.Value.Close();
+                    clients.Clear();
+                }
             }).Start();
         }
 

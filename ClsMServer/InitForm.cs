@@ -12,13 +12,33 @@ namespace ClsMServer
 {
     public partial class InitForm : Form
     {
-        private CmdServer server;
+        private CmdServer server, stream_server;
         private Blacklist blacklist;
         private Form1 form1;
+        private bool IsLockScreen = false;
 
         public InitForm()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Should be called in UI thread only
+        /// </summary>
+        public void LockScreen()
+        {
+            IsLockScreen = true;
+            // type 2 for screenlock
+            server.Broadcast(new byte[] {2, 0});
+        }
+
+        /// <summary>
+        /// Should be called in UI thread only
+        /// </summary>
+        public void UnLockScreen()
+        {
+            IsLockScreen = false;
+            stream_server.BroadcastClose();
         }
 
         public void Log(string s)
@@ -35,11 +55,26 @@ namespace ClsMServer
         {
             blacklist = new Blacklist("blacklist.txt");
             server = new CmdServer("0.0.0.0", 5566, (c) => {
-                Log(String.Format("Client {0} connect\n", new object[] { c.ClientInfo }));
+                Log(String.Format("s1 Client {0} connect\n", new object[] { c.ClientInfo }));
                 // send diff with default blacklist
                 c.SendAsync(blacklist.ToByteArray());
-            }, (c) => {
-                Log(String.Format("Client {0} disconnect\n", new object[] { c }));
+            }, null, (c) => {
+                Log(String.Format("s1 Client {0} disconnect\n", new object[] { c }));
+            });
+            stream_server = new CmdServer("0.0.0.0", 5567, (c) =>
+            {
+                Log(String.Format("s2 Client {0} connect\n", new object[] { c.ClientInfo }));
+            }, (c) =>
+            {
+                if(!IsLockScreen)
+                {
+                    c.Close();
+                    return false;
+                }
+                return true;
+            }, (c) =>
+            {
+                Log(String.Format("s2 Client {0} disconnect\n", new object[] { c }));
             });
             this.Message.Text = "Bind CmdServer Success\r\n";
             form1 = new Form1(server, this, blacklist);

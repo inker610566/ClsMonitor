@@ -43,6 +43,14 @@ namespace ClsMServer
                 {
                     Byte[] msg = blacklist.Disable();
                     if(msg != null) cmdServer.Broadcast(msg);
+                },
+                ()=>
+                {
+                    msgForm.LockScreen();
+                },
+                ()=>
+                {
+                    msgForm.UnLockScreen();
                 });
         }
     }
